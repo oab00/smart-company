@@ -1,0 +1,79 @@
+from flask import render_template, flash, redirect, request
+from app import app
+from app.forms import LoginForm
+import sqlite3 as sql
+from datetime import datetime
+from time import strftime
+
+from app import db
+
+
+@app.route('/')
+@app.route('/index')
+def index():
+    user = {'username': 'Omar'}
+    posts = [
+        {
+            'author': {'username': 'John'},
+            'body': 'Beautiful day in Portland!'
+        },
+        {
+            'author': {'username': 'Mark'},
+            'body': 'The Avengers movie was so cool!'
+        }
+    ]
+    return render_template('index.html', title='Home', user=user, posts=posts)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        flash('Login requested for user {}, remember_me={}'.format(
+            form.username.data, form.remember_me.data))
+        return redirect(url_for('index'))
+    return render_template('login.html', title='Sign In', form=form)
+
+
+@app.route('/sensor')
+def sensor():
+    return render_template('base.html')
+
+
+@app.route('/addrecord', methods = ['POST', 'GET'])
+def addrecord():
+    if request.method == 'GET':#'POST':
+        try:
+            now = datetime.now()
+            date = now.strftime('%Y-%m-%d')
+            time = now.strftime('%H:%M:%S')
+            temp = request.args['temp']
+            hum = request.args['hum']
+            with sql.connect("database.db") as con:
+                cur = con.cursor()
+                print('hello')
+                cur.execute("INSERT INTO sensorData (date, time, temperature, humidity)   \
+                    VALUES ('{}', '{}', {}, {})".format(date, time, temp, hum))
+                
+                con.commit()
+                cd 
+                msg = "Record successfully added"
+
+                con.close()
+        except:
+            msg = "error in insert operation"
+            print('ERROR')
+        finally:
+            return render_template("result.html", msg = msg)
+
+
+@app.route('/list')
+def list():
+   con = sql.connect("database.db")
+   con.row_factory = sql.Row
+   
+   cur = con.cursor()
+   cur.execute("select * from sensorData")
+   
+   rows = cur.fetchall(); 
+   return render_template("results.html", rows=rows)            

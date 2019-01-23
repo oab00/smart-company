@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+   <body>
+      <table border=1>
+         <thead>
+            <td>Date</td>
+            <td>Time</td>
+            <td>Temperature</td>
+            <td>Humidity</td>
+         </thead>
+         
+         {% for row in rows %}
+            <tr>
+               <td>{{row["date"]}}</td>
+               <td>{{row["time"]}}</td>
+               <td>{{row["temperature"]}}</td>
+               <td>{{row["humidity"]}}</td>
+            </tr>
+         {% endfor %}
+      </table>
+      
+   </body>
+</html>
