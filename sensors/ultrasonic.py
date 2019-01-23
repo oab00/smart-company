@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+import requests
 
 try:
 
@@ -20,7 +21,6 @@ try:
       print "Calculating distance"
       
       while True:
-	      time.sleep(0.75)
 
 	      GPIO.output(PIN_TRIGGER, GPIO.HIGH)
 	
@@ -35,12 +35,16 @@ try:
 	
 	      pulse_duration = pulse_end_time - pulse_start_time
 	      distance = round(pulse_duration * 17150, 2)
+
+	      requests.get('http://localhost:5000/adddist?dist={}'.format(distance))
 	      
 
-	      print "Distance:",distance,"cm"
+	      print("Distance:", distance, "cm")
 
               if distance <= 10.0:
-		     print("There is an object closeby.");
+		     print("There is an object closeby.")
+
+	      time.sleep(3)
 
 finally:
       GPIO.cleanup()                     

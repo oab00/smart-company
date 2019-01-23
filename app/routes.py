@@ -51,7 +51,6 @@ def addTemp():
             hum = request.args['hum']
             with sql.connect("database.db") as con:
                 cur = con.cursor()
-                print('hello')
                 cur.execute("INSERT INTO temperature (date, time, temperature, humidity)   \
                     VALUES ('{}', '{}', {}, {})".format(date, time, temp, hum))
                 
@@ -63,7 +62,7 @@ def addTemp():
             msg = "error in insert operation"
             print('ERROR')
         finally:
-            return render_template("results.html", msg = msg)
+            return render_template("result.html", msg = msg)
 
 
 @app.route('/adddist', methods = ['POST', 'GET'])
@@ -99,8 +98,7 @@ def list():
    cur.execute("select * from temperature")
    tempRows = cur.fetchall()
 
-#cur.execute("select * from distance")
-#   distRows = cur.fetchall()
+   cur.execute("select * from distance")
+   distRows = cur.fetchall()
    
-   print(tempRows)
-   return render_template("results.html", tempRows=tempRows)# distRows=distRows)            
+   return render_template("results.html", tempRows=tempRows, distRows=distRows)            

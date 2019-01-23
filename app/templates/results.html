@@ -1,5 +1,18 @@
 <!doctype html>
 <html>
+   <head>
+      <style>
+         table {
+            float: left;
+            margin-left: 50px;
+         }
+
+         td {
+            text-align: center;
+            padding: 10px;
+         }
+      </style>
+   </head>
    <body>
       <table border=1>
          <thead>
@@ -19,5 +32,20 @@
          {% endfor %}
       </table>
       
+      <table border=1>
+         <thead>
+            <td>Date</td>
+            <td>Time</td>
+            <td>Distance</td>
+         </thead>
+         
+         {% for row in distRows %}
+            <tr>
+               <td>{{row["date"]}}</td>
+               <td>{{row["time"]}}</td>
+               <td>{{row["distance"]}} cm</td>
+            </tr>
+         {% endfor %}
+      </table>
    </body>
 </html>
