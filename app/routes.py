@@ -40,8 +40,8 @@ def sensor():
     return render_template('base.html')
 
 
-@app.route('/addrecord', methods = ['POST', 'GET'])
-def addrecord():
+@app.route('/addtemp', methods = ['POST', 'GET'])
+def addTemp():
     if request.method == 'GET':#'POST':
         try:
             now = datetime.now()
@@ -52,11 +52,34 @@ def addrecord():
             with sql.connect("database.db") as con:
                 cur = con.cursor()
                 print('hello')
-                cur.execute("INSERT INTO sensorData (date, time, temperature, humidity)   \
+                cur.execute("INSERT INTO temperature (date, time, temperature, humidity)   \
                     VALUES ('{}', '{}', {}, {})".format(date, time, temp, hum))
                 
                 con.commit()
-                cd 
+                msg = "Record successfully added"
+
+                con.close()
+        except:
+            msg = "error in insert operation"
+            print('ERROR')
+        finally:
+            return render_template("results.html", msg = msg)
+
+
+@app.route('/adddist', methods = ['POST', 'GET'])
+def addDist():
+    if request.method == 'GET':#'POST':
+        try:
+            now = datetime.now()
+            date = now.strftime('%Y-%m-%d')
+            time = now.strftime('%H:%M:%S')
+            dist = request.args['dist']
+            with sql.connect("database.db") as con:
+                cur = con.cursor()
+                cur.execute("INSERT INTO distance (date, time, distance)   \
+                    VALUES ('{}', '{}', {})".format(date, time, dist))
+                
+                con.commit()
                 msg = "Record successfully added"
 
                 con.close()
@@ -73,7 +96,11 @@ def list():
    con.row_factory = sql.Row
    
    cur = con.cursor()
-   cur.execute("select * from sensorData")
+   cur.execute("select * from temperature")
+   tempRows = cur.fetchall()
+
+#cur.execute("select * from distance")
+#   distRows = cur.fetchall()
    
-   rows = cur.fetchall(); 
-   return render_template("results.html", rows=rows)            
+   print(tempRows)
+   return render_template("results.html", tempRows=tempRows)# distRows=distRows)            

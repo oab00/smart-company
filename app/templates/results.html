@@ -9,12 +9,12 @@
             <td>Humidity</td>
          </thead>
          
-         {% for row in rows %}
+         {% for row in tempRows %}
             <tr>
                <td>{{row["date"]}}</td>
                <td>{{row["time"]}}</td>
-               <td>{{row["temperature"]}}</td>
-               <td>{{row["humidity"]}}</td>
+               <td>{{row["temperature"]}}°C</td>
+               <td>{{row["humidity"]}}%</td>
             </tr>
          {% endfor %}
       </table>
