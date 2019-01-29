@@ -1,51 +1,155 @@
 <!doctype html>
 <html>
    <head>
+         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
       <style>
+         body {
+            margin-top: 50px;
+         }
          table {
             float: left;
-            margin-left: 50px;
          }
 
          td {
             text-align: center;
             padding: 10px;
          }
+
+         .chart {
+            background-color: lightblue;
+         }
+
+         .chart div {
+            background-color: blue;
+            margin: 5px;
+            text-align: right;
+            color: white;
+            padding: 5px;
+         }
       </style>
    </head>
    <body>
-      <table border=1>
-         <thead>
-            <td>Date</td>
-            <td>Time</td>
-            <td>Temperature</td>
-            <td>Humidity</td>
-         </thead>
-         
+      <div class="container">
+         <div class="row">
+            <div class="col-sm">
+               <table class="table table-striped">
+                  <thead>
+                     <td scope="col">Date</td>
+                     <td scope="col">Time</td>
+                     <td scope="col">Temperature</td>
+                     <td scope="col">Humidity</td>
+                  </thead>
+                  
+                  {% for row in tempRows %}
+                     <tr>
+                        <td scope="row">{{row["date"]}}</td>
+                        <td>{{row["time"]}}</td>
+                        <td>{{row["temperature"]}}°C</td>
+                        <td>{{row["humidity"]}}%</td>
+                     </tr>
+                  {% endfor %}
+               </table>
+            </div>
+            <div class="col-sm-1">
+            </div>
+            <div class="col-sm">
+               <table class="table table-striped">
+                  <thead>
+                     <td scope="col">Date</td>
+                     <td scope="col">Time</td>
+                     <td scope="col">Distance</td>
+                  </thead>
+                  
+                  {% for row in distRows %}
+                     <tr>
+                        <td scope="row">{{row["date"]}}</td>
+                        <td>{{row["time"]}}</td>
+                        <td>{{row["distance"]}} cm</td>
+                     </tr>
+                  {% endfor %}
+               </table>
+            </div>
+         </div>
+
+         <div class="row">
+            <div class="col-sm">
+               
+               <div class="chart">
+
+               </div>
+
+               <svg></svg>
+
+            </div>
+         </div>
+      </div>
+      <script src="https://d3js.org/d3.v5.min.js"></script>
+      <script>
+         /*
+         var data = [30, 86, 168, 281, 303, 365];
+
+         d3.select(".chart")
+         .selectAll("div")
+         .data(data)
+            .enter()
+            .append("div")
+            .style("width", function(d) { return d + "px"; })
+            .style("background-color", function() {
+               return "hsl(" + Math.random() * 360 + ",100%,50%)";
+            })
+            .text(function(d) { return d; });
+            */
+
+         var dataset = [];
          {% for row in tempRows %}
-            <tr>
-               <td>{{row["date"]}}</td>
-               <td>{{row["time"]}}</td>
-               <td>{{row["temperature"]}}°C</td>
-               <td>{{row["humidity"]}}%</td>
-            </tr>
+            dataset.push({{row["temperature"]}} * 10)
          {% endfor %}
-      </table>
-      
-      <table border=1>
-         <thead>
-            <td>Date</td>
-            <td>Time</td>
-            <td>Distance</td>
-         </thead>
+
          
-         {% for row in distRows %}
-            <tr>
-               <td>{{row["date"]}}</td>
-               <td>{{row["time"]}}</td>
-               <td>{{row["distance"]}} cm</td>
-            </tr>
-         {% endfor %}
-      </table>
+         
+
+         var svgWidth = 500, svgHeight = 300, barPadding = 0;
+
+
+
+         var svg = d3.select('svg')
+            .attr("width", svgWidth)
+            .attr("height", svgHeight)
+            .attr("style", function() {
+               return "margin-bottom: 50px";
+            });
+            
+         var barChart;
+         
+         var inter = setInterval(function() {
+            dataset.push(Math.random() * 100 + 150);
+            var barWidth = (svgWidth / dataset.length);
+            if (barChart != undefined) barChart.remove();
+
+            barChart = svg.selectAll("rect")
+               .data(dataset)
+               .enter()
+               .append("rect")
+               .style("fill", function(d) {
+                  console.log(Math.floor(d));
+                  return "hsl(" + Math.floor(d * 20)+ ",100%,50%)";
+               })
+               .attr("y", function(d) {
+                     return svgHeight - d 
+               })
+               .attr("height", function(d) { 
+                  return d; 
+               })
+               .attr("width", barWidth - barPadding)
+               .attr("transform", function (d, i) {
+                  var translate = [barWidth * i, 0]; 
+                  return "translate("+ translate +")";
+               });
+
+               //d3.select("body").transition()
+               //   .style("background-color", "hsl(" + Math.random() * 360 + ",100%,50%)");
+               
+         }, 1000);
+      </script>
    </body>
 </html>
