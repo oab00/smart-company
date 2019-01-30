@@ -40,6 +40,7 @@
                      <td scope="col">Humidity</td>
                   </thead>
                   
+                  <tbody id="temp">
                   {% for row in tempRows %}
                      <tr>
                         <td scope="row">{{row["date"]}}</td>
@@ -48,6 +49,7 @@
                         <td>{{row["humidity"]}}%</td>
                      </tr>
                   {% endfor %}
+                  </tbody>
                </table>
             </div>
             <div class="col-sm-1">
@@ -85,21 +87,7 @@
       </div>
       <script src="https://d3js.org/d3.v5.min.js"></script>
       <script>
-         /*
-         var data = [30, 86, 168, 281, 303, 365];
-
-         d3.select(".chart")
-         .selectAll("div")
-         .data(data)
-            .enter()
-            .append("div")
-            .style("width", function(d) { return d + "px"; })
-            .style("background-color", function() {
-               return "hsl(" + Math.random() * 360 + ",100%,50%)";
-            })
-            .text(function(d) { return d; });
-            */
-
+        
          var dataset = [];
          {% for row in tempRows %}
             dataset.push({{row["temperature"]}} * 10)
@@ -110,7 +98,49 @@
 
          var svgWidth = 500, svgHeight = 300, barPadding = 0;
 
+         //var fetching = setInterval(function() {
+            fetch('http://192.168.8.106:5000/gettemp')
+               .then(function(response) {
+                  return response.json();
+               })
+               .then(function(myJson) {
 
+                  console.log(dataset)
+                  /*template = `
+                     <tr>
+                        <td scope="row">${'2019-01-29'}</td>
+                        <td>${'15:03:09'}</td>
+                        <td>${'20.0'}°C</td>
+                        <td>${'48.0'}%</td>
+                     </tr>
+                  `;*/
+
+                  var tr = document.createElement('tr');
+                  var td = document.createElement('td');
+                  td.className = "row";
+                  td.innerHTML = "2019-01-29";
+                  tr.append(td);
+
+                  td = document.createElement('td');
+                  td.innerHTML = "15:03:09";
+                  tr.append(td);
+
+                  td = document.createElement('td');
+                  td.innerHTML = "20.0°C";
+                  tr.append(td);
+
+                  td = document.createElement('td');
+                  td.innerHTML = "48.0%";
+                  tr.append(td);
+
+                  el = document.getElementById('temp');
+
+                  el.append(tr);
+
+                  console.log(JSON.stringify(myJson));
+               });
+         //}, 1000);
+         
 
          var svg = d3.select('svg')
             .attr("width", svgWidth)
@@ -131,7 +161,7 @@
                .enter()
                .append("rect")
                .style("fill", function(d) {
-                  console.log(Math.floor(d));
+                  //console.log(Math.floor(d));
                   return "hsl(" + Math.floor(d * 20)+ ",100%,50%)";
                })
                .attr("y", function(d) {

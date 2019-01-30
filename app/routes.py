@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, request
+from flask import render_template, flash, redirect, request, jsonify
 from app import app
 from app.forms import LoginForm
 import sqlite3 as sql
@@ -101,4 +101,20 @@ def list():
    cur.execute("select * from distance")
    distRows = cur.fetchall()
    
-   return render_template("results.html", tempRows=tempRows, distRows=distRows)            
+   return render_template("results.html", tempRows=tempRows, distRows=distRows)
+
+
+@app.route('/gettemp')
+def getTemp():
+    con = sql.connect("database.db")
+    con.row_factory = sql.Row
+   
+    cur = con.cursor()
+    cur.execute("select * from temperature")
+    tempRows = cur.fetchall()
+
+    data = []
+    for row in tempRows:
+        data.append(dict(row))
+
+    return jsonify(data)
