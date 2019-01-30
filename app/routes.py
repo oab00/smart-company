@@ -8,8 +8,8 @@ from time import strftime
 from app import db
 
 
-@app.route('/')
-@app.route('/index')
+#@app.route('/')
+#@app.route('/index')
 def index():
     user = {'username': 'Omar'}
     posts = [
@@ -88,7 +88,7 @@ def addDist():
         finally:
             return render_template("result.html", msg = msg)
 
-
+@app.route('/')
 @app.route('/list')
 def list():
    con = sql.connect("database.db")
