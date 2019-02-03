@@ -1,28 +1,14 @@
 from flask import render_template, flash, redirect, request, jsonify
-from app import app
+from app import app, db
 from app.forms import LoginForm
 import sqlite3 as sql
 from datetime import datetime
 from time import strftime
 
-from app import db
 
-
-#@app.route('/')
-#@app.route('/index')
+@app.route('/')
 def index():
-    user = {'username': 'Omar'}
-    posts = [
-        {
-            'author': {'username': 'John'},
-            'body': 'Beautiful day in Portland!'
-        },
-        {
-            'author': {'username': 'Mark'},
-            'body': 'The Avengers movie was so cool!'
-        }
-    ]
-    return render_template('index.html', title='Home', user=user, posts=posts)
+	return app.send_static_file('index.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -88,7 +74,7 @@ def addDist():
         finally:
             return render_template("result.html", msg = msg)
 
-@app.route('/')
+
 @app.route('/list')
 def list():
    con = sql.connect("database.db")
@@ -118,3 +104,8 @@ def getTemp():
         data.append(dict(row))
 
     return jsonify(data)
+
+
+@app.route('/<path:path>')
+def static_file(path):
+    return app.send_static_file(path)
