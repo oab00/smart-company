@@ -6,9 +6,9 @@ from datetime import datetime
 from time import strftime
 
 
-@app.route('/')
+@app.route('/old')
 def index():
-	return app.send_static_file('index.html')
+	return app.send_static_file('main.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
