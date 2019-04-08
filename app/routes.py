@@ -8,7 +8,8 @@ from time import strftime
 
 @app.route('/old')
 def index():
-	return app.send_static_file('main.html')
+	#return app.send_static_file('main.html')
+    return render_template('index.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
