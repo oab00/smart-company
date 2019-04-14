@@ -14,7 +14,7 @@ CREATE TABLE EMPLOYEE (
 CREATE TABLE RFID (
     RFID_ID INTEGER PRIMARY KEY AUTOINCREMENT,
     DATETIME DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    RFID_LOCATION TEXT check("RFID_LOCATION" in ('Gate', 'Office', 'Lounge', 'Bathroom'))
+    RFID_LOCATION TEXT check("RFID_LOCATION" in ('Gate', 'Office', 'Mosque', 'Coffee Shop', 'Rest Room', 'Meeting Room'))
     RFID_STATUS TEXT check("RFID_STATUS" in ('Enter', 'Leave')),
     RFID_CARD_ID TEXT,
     RFID_EMPLOYEE_ID INTEGER,
