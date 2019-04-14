@@ -11,7 +11,7 @@ import logging
 socketio = SocketIO(app)
 
 log = logging.getLogger('werkzeug')
-#log.disabled = True
+log.disabled = True
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -25,6 +25,8 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("RFID/Mosque")
     client.subscribe("RFID/CoffeeShop")
     client.subscribe("RFID/Bathroom")
+
+    client.subscribe("ULTRASONIC1")
     
     client.subscribe("LCD/write")
     client.subscribe("/esp8266/temperature")
@@ -44,6 +46,9 @@ def on_message(client, userdata, message):
        socketio.emit('dht_humidity', {'data': message.payload})
    #if message.topic == "RFID/cardID":
    #print('RFID update', message.payload.decode("utf-8"))
+
+   if message.topic == "ULTRASONIC1":
+      print("Ultrasonic1:", payload)
 
    if payload == "8A 86 B8 73":
       payload = "Mohammed Al-Qarni"
