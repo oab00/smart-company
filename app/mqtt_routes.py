@@ -8,6 +8,9 @@ import paho.mqtt.client as mqtt
 from flask_socketio import SocketIO, emit
 import logging
 
+from app.LogicSystem import LogicSystem
+logicSystem = LogicSystem()
+
 socketio = SocketIO(app)
 
 log = logging.getLogger('werkzeug')
@@ -50,6 +53,7 @@ def on_message(client, userdata, message):
    if message.topic == "ULTRASONIC1":
       print("Ultrasonic1:", payload)
 
+   '''
    if payload == "8A 86 B8 73":
       payload = "Mohammed Al-Qarni"
    elif payload == "91 D8 9E 66":
@@ -60,12 +64,15 @@ def on_message(client, userdata, message):
       payload = "Raed Al-Harthi"
    elif payload == "90 A2 42 83":
       payload = "Ibrahim Al-Hasan"
+   '''
 
 
-
-   if message.topic == "Remote_RFID/cardID":
+   if message.topic == "Remote_RFID/cardID" or True:
       print("Remote RFID: ", payload)
       socketio.emit('remote_rfid', {'data': payload})
+
+      logicSystem.gate_rfid_reading(payload)
+
    elif message.topic == "RFID/cardID":
       print("Local RFID:  ", payload)
       socketio.emit('local_rfid', {'data': payload})
