@@ -8,6 +8,7 @@ print("Table created successfully")
 
 conn.execute('CREATE TABLE distance (date TEXT, time TEXT, distance REAL)')
 print("Table created successfully")
+
 conn.close()
 
 
