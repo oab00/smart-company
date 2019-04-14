@@ -19,11 +19,14 @@ def on_connect(client, userdata, flags, rc):
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
-    client.subscribe("RFID/cardID")
-    client.subscribe("Remote_RFID/cardID")
+    client.subscribe("RFID/cardID") # Office
+    client.subscribe("Remote_RFID/cardID") # Gate
+    client.subscribe("RFID/MeetingRoom") 
+    client.subscribe("RFID/Mosque")
+    client.subscribe("RFID/CoffeeShop")
+    client.subscribe("RFID/Bathroom")
+    
     client.subscribe("LCD/write")
-    client.subscribe("inTopic")
-    client.subscribe("outTopic")
     client.subscribe("/esp8266/temperature")
     client.subscribe("/esp8266/humidity")
     
