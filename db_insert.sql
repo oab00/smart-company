@@ -1,0 +1,22 @@
+
+INSERT INTO EMPLOYEE (NAME, AGE, EMPLOYEE_STATUS, RFID_CARD_ID) 
+            VALUES ('Omar Bamarouf', 26, 'Available', '8A 86 B8 73');
+INSERT INTO EMPLOYEE (NAME, AGE, EMPLOYEE_STATUS, RFID_CARD_ID) 
+            VALUES ('Mohanned Asiri', 23, 'OffCampus', '91 D8 9E 66');
+
+
+INSERT INTO RFID (RFID_EMPLOYEE_ID, RFID_CARD_ID, RFID_LOCATION, RFID_STATUS)
+            VALUES (1, '8A 86 B8 73', 'Gate', 'Enter');
+INSERT INTO RFID (RFID_EMPLOYEE_ID, RFID_CARD_ID, RFID_LOCATION, RFID_STATUS)
+            VALUES (1, '8A 86 B8 73', 'Gate', 'Leave');
+
+INSERT INTO RFID (RFID_EMPLOYEE_ID, RFID_CARD_ID, RFID_LOCATION, RFID_STATUS)
+            VALUES (1, '91 D8 9E 66', 'Office', 'Enter');
+INSERT INTO RFID (RFID_EMPLOYEE_ID, RFID_CARD_ID, RFID_LOCATION, RFID_STATUS)
+            VALUES (1, '91 D8 9E 66', 'Office', 'Leave');
+
+
+/* SQL Table Display:
+    .mode column
+    .headers on
+*/
