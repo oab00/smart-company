@@ -79,11 +79,17 @@ templateData = {
    'pins' : pins
    }
 
-@app.route("/")
+@app.route("/main")
 def main():
    # Pass the template data into the template main.html and return it to the user
    #return render_template('index.html', async_mode=socketio.async_mode, **templateData)
-   return app.send_static_file('main.html')
+   return render_template('main.html', **templateData)
+
+@app.route("/wifi")
+def wifi():
+   # Pass the template data into the template main.html and return it to the user
+   #return render_template('index.html', async_mode=socketio.async_mode, **templateData)
+   return render_template('wifi-data.html', **templateData)
 
 # The function below is executed when someone requests a URL with the pin number and action in it:
 @app.route("/<board>/<changePin>/<action>")
@@ -103,7 +109,7 @@ def action(board, changePin, action):
    templateData = {
       'pins' : pins
    }
-   return render_template('main.html', **templateData)
+   return render_template('wifi-data.html', **templateData)
 
 @app.route("/LCD_Write/")
 def LCD_write():
@@ -113,7 +119,7 @@ def LCD_write():
    templateData = {
       'pins' : pins
    }
-   return render_template('main.html', **templateData)
+   return render_template('wifi-data.html', **templateData)
 
 @socketio.on('my event')
 def handle_my_custom_event(json):
