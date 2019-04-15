@@ -7,6 +7,7 @@ from time import strftime
 import paho.mqtt.client as mqtt
 from flask_socketio import SocketIO, emit
 import logging
+import time
 
 from app.LogicSystem import LogicSystem
 logicSystem = LogicSystem()
@@ -51,31 +52,34 @@ def on_message(client, userdata, message):
    #print('RFID update', message.payload.decode("utf-8"))
 
    if message.topic == "ULTRASONIC1":
-      print("Ultrasonic1:", payload)
+      #print("Ultrasonic1:", payload)
+      pass
 
-   '''
-   if payload == "8A 86 B8 73":
+   
+   if payload == "B9 B5 69 5":
       payload = "Mohammed Al-Qarni"
-   elif payload == "91 D8 9E 66":
+      mqttc.publish("LCD/write", "Mohammed Al-Qarni")
+   elif payload == "41 24 9B 66":
       payload = "Baraa Ismail"
+      mqttc.publish("LCD/write", "Baraa Ismail")
    elif payload == "41 24 9B 66":
       payload = "Omar Bamarouf"
    elif payload == "9 BA 52 5":
       payload = "Raed Al-Harthi"
    elif payload == "90 A2 42 83":
       payload = "Ibrahim Al-Hasan"
-   '''
 
 
-   if message.topic == "Remote_RFID/cardID" or True:
-      print("Remote RFID: ", payload)
+
+   if message.topic == "Remote_RFID/cardID":
+      print("Gate RFID: ", payload)
       socketio.emit('remote_rfid', {'data': payload})
 
+   elif message.topic == "RFID/cardID":
+      print("Gate RFID:  ", payload)
+      socketio.emit('local_rfid', {'data': payload})
       logicSystem.gate_rfid_reading(payload)
 
-   elif message.topic == "RFID/cardID":
-      print("Local RFID:  ", payload)
-      socketio.emit('local_rfid', {'data': payload})
 
 mqttc=mqtt.Client()
 mqttc.on_connect = on_connect
@@ -100,7 +104,7 @@ def main():
    #return render_template('index.html', async_mode=socketio.async_mode, **templateData)
    return render_template('main.html', **templateData)
 
-@app.route("/wifi")
+@app.route("/")
 def wifi():
    # Pass the template data into the template main.html and return it to the user
    #return render_template('index.html', async_mode=socketio.async_mode, **templateData)
@@ -127,13 +131,15 @@ def action(board, changePin, action):
    return render_template('wifi-data.html', **templateData)
 
 @app.route("/LCD_Write/")
-def LCD_write():
-   mqttc.publish("LCD/write", "Omar is the BOSS")
+def LCD_write():  
+   mqttc.publish("LCD/write", "OMAR IS BOSS")
+
+   for i in range(21):
+      time.sleep(0.25)
+      mqttc.publish("LCD/write", "OMAR IS BOSS " + str(i))
+
    print("Written to LCD")
 
-   templateData = {
-      'pins' : pins
-   }
    return render_template('wifi-data.html', **templateData)
 
 @socketio.on('my event')
