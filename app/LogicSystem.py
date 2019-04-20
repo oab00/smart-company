@@ -3,19 +3,11 @@ import sqlite3 as sql
 
 class LogicSystem:
     def __init__(self):
-        self.db_con = ''
-        self.db_cur = ''
-        #self.initialize_database()
         self.employees = []
         self.initialize_employees()
         self.locations = []
         self.initalize_locations()
 
-    def initialize_database(self):
-        #self.db_con = sql.connect("database.db")
-        #self.db_con.row_factory = sql.Row
-        #self.db_cur = self.db_con.cursor()
-        pass
 
     def initialize_employees(self):
         with sql.connect("database.db") as con:
@@ -28,36 +20,47 @@ class LogicSystem:
                                                 emp['EMPLOYEE_STATUS'],
                                                 emp['RFID_CARD_ID'],
                                                 emp['LOCATION_NAME']) )
-            #con.close()
 
     def initalize_locations(self):
-        locations = ["Gate", "Office", "Meeting Room",
-                     "Mosque", "Coffee Shop", "Restroom"]
+        locations = ["Outside", "On Campus", "Gate", "Office", 
+                    "Meeting Room", "Mosque", "Coffee Shop", "Restroom"]
         
         for loc in locations:
             rfid_code = "RFID/{}".format(loc.replace(' ', ''))
             self.locations.append(Location(loc, rfid_code))
 
 
-    def gate_rfid_reading(self, cardID, location):
+    def rfid_reading(self, cardID, location):
         employee = ''
         for emp in self.employees:
             if emp.cardID == cardID:
                 employee = emp
+                break
+        if employee == '':
+            print("Couldn't find employee") 
+            return
         
         current_location = ''
         for loc in self.locations:
             if loc.name == location:
                 current_location = loc
+                break
+        if current_location == '':
+            print("Couldn't find location")
+            return
         
-        #print("{} ? {}".format(employee.name, current_location.name))
         self.register_rfid_event(employee, current_location)
 
 
-
-
     def register_rfid_event(self, employee, location):
-        if employee.locations[location.name] == False: # If Leave
+        if not employee.locations[location.name]: # If Entering a Room  
+
+            # Check if employee is inside one of the rooms
+            if not employee.location == "Outside" and not employee.location == "On Campus":
+                print("{} can't get to {} because he's inside {}".format(employee.name,
+                                                                    location.name, employee.location))
+                return
+
             employee.locations[location.name] = True
             location.employees.append(employee)
             
@@ -73,16 +76,22 @@ class LogicSystem:
 
         else:
             employee.locations[location.name] = False
-            location.employees.append(employee)
+            location.employees.remove(employee)
 
-            print("{} has left the {}".format(employee.name, location.name))
+            current_location = ''
+            if location.name == 'Gate':
+                current_location = 'Outside'
+            else:
+                current_location = 'On Campus'
+
+            print("{} has left the {} and is now {}".format(employee.name, location.name, current_location))
 
             with sql.connect("database.db") as con:
                 cur = con.cursor()
                 cur.execute('''INSERT INTO RFIDS (EMPLOYEE_NAME, RFID_CARD_ID, RFID_LOCATION, RFID_STATUS)
                            VALUES ('{}', '{}', '{}', 'Leave');'''.format( employee.name,
                                                                           employee.cardID,
-                                                                          location.name))
+                                                                          current_location))
                 con.commit()
 
 
@@ -104,13 +113,11 @@ class Employee:
         self.locations = { # False = Leave , True = Enter
             "Gate": False,
             "Office": False,
-            "MeetingRoom": False,
+            "Meeting Room": False,
             "Mosque": False,
-            "CoffeeShop": False,
+            "Coffee Shop": False,
             "Bathroom": False
-        }
-
-    
+        }  
 
 
 class Office:

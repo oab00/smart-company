@@ -3,9 +3,10 @@ DELETE FROM RFIDS;
 DELETE FROM LOCATIONS;
 
 
-INSERT INTO EMPLOYEES (EMPLOYEE_NAME, EMPLOYEE_STATUS, RFID_CARD_ID) 
-            VALUES ('Omar Bamarouf', 'Available', '41 24 9B 66'),
-                   ('Baraa Ismail', 'OffCampus', 'B9 B5 69 5');
+INSERT INTO EMPLOYEES (EMPLOYEE_NAME, EMPLOYEE_STATUS, RFID_CARD_ID, LOCATION_NAME) 
+            VALUES ('Omar Bamarouf', 'Outside', '41 24 9B 66', 'Outside'),
+                   ('Baraa Ismail', 'Outside', 'B9 B5 69 05', 'Outside'),
+                   ('Raed Al-Harthi', 'Outside', '90 A2 42 83', 'Outside');
 
 /*
 INSERT INTO RFIDS (EMPLOYEE_NAME, RFID_CARD_ID, RFID_LOCATION, RFID_STATUS)
@@ -16,12 +17,15 @@ INSERT INTO RFIDS (EMPLOYEE_NAME, RFID_CARD_ID, RFID_LOCATION, RFID_STATUS)
 */
 
 INSERT INTO LOCATIONS (LOCATION_NAME, RFID_CODE)
-            VALUES ('Gate', 'RFID/cardID'),
+            VALUES ('Outside', NULL),
+                   ('On Campus', NULL),
+                   ('Gate', 'RFID/cardID'),
                    ('Office', 'Remote_RFID/cardID'),
                    ('Mosque', 'Mosque'),
                    ('Coffee Shop', 'CoffeeShop'),
                    ('Rest Room', 'RestRoom'),
                    ('Meeting Room', 'MeetingRoom');
+
 
 /* SQL Table Display:
     .mode column

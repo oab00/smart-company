@@ -4,7 +4,7 @@ COMMIT;
 
 CREATE TABLE EMPLOYEES (
     EMPLOYEE_NAME TEXT PRIMARY KEY UNIQUE,
-    EMPLOYEE_STATUS TEXT check("EMPLOYEE_STATUS" in ('Available', 'Busy', 'OnCampus', 'OffCampus', 'OnBreak', 'InMeeting')),
+    EMPLOYEE_STATUS TEXT check("EMPLOYEE_STATUS" in ('Available', 'Busy', 'OnCampus', 'Outside', 'OnBreak', 'InMeeting')),
     PREF_TEMPERATURE REAL,
     PREF_LIGHT REAL,
     RFID_CARD_ID TEXT,
@@ -15,7 +15,7 @@ CREATE TABLE EMPLOYEES (
 CREATE TABLE RFIDS (
     RFID_ID INTEGER PRIMARY KEY AUTOINCREMENT,
     DATETIME DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    RFID_LOCATION TEXT check("RFID_LOCATION" in ('Gate', 'Meeting Room', 'Office', 'Mosque', 'Coffee Shop', 'Rest Room')),
+    RFID_LOCATION TEXT check("RFID_LOCATION" in ('Outside', 'On Campus', 'Gate', 'Meeting Room', 'Office', 'Mosque', 'Coffee Shop', 'Rest Room')),
     RFID_STATUS TEXT check("RFID_STATUS" in ('Enter', 'Leave')),
     RFID_CARD_ID TEXT,
     EMPLOYEE_NAME TEXT,

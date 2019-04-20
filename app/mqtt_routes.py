@@ -53,23 +53,31 @@ def on_message(client, userdata, message):
 
 
    if message.topic == "RFID/Office": # Gate for now
-      print('Gate RFID: ', payload)
-      logicSystem.gate_rfid_reading(payload, "Gate")
+      #print('Gate RFID: ', payload)
+      logicSystem.rfid_reading(payload, "Gate")
       #print("Gate RFID: ", employee.name + ',', employee.cardID)
       #socketio.emit('local_rfid', {'data': payload})
 
    elif message.topic == "RFID/Gate": # should be office
       print("Office RFID: ", payload)
       #socketio.emit('remote_rfid', {'data': payload})
+      pass
 
    elif message.topic == "RFID/MeetingRoom":
-      print("RFID_MeetingRoom: ", payload)
+      print("RFID_MeetingRoom: ", "'" +payload+"'")
+      logicSystem.rfid_reading(payload, "Meeting Room")
+
    elif message.topic == "RFID/Mosque":
       print("RFID_Mosque: ", payload)
+      logicSystem.rfid_reading(payload, "Mosque")
+
    elif message.topic == "RFID/CoffeeShop":
       print("RFID_CoffeeShop: ", payload)
+      logicSystem.rfid_reading(payload, "Coffee Shop")
+
    elif message.topic == "RFID/Restroom":
       print("RFID_Restroom: ", payload)
+      logicSystem.rfid_reading(payload, "Restroom")
       
    
 
