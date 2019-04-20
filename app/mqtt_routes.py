@@ -1,21 +1,15 @@
 from flask import Flask, render_template, flash, redirect, request, jsonify
-from app import app, db
-from app.forms import LoginForm
+from flask import current_app as app
 import sqlite3 as sql
-from datetime import datetime
-from time import strftime
+from time import time
 import paho.mqtt.client as mqtt
 from flask_socketio import SocketIO, emit
-import logging
-import time
 
-from app.LogicSystem import LogicSystem
-logicSystem = LogicSystem()
+from . import LogicSystem
+logicSystem = LogicSystem.LogicSystem()
 
-socketio = SocketIO(app)
+#socketio = SocketIO(app)
 
-log = logging.getLogger('werkzeug')
-log.disabled = True
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -23,16 +17,17 @@ def on_connect(client, userdata, flags, rc):
 
     # Subscribing in on_connect() means that if we lose the connection and
     # reconnect then subscriptions will be renewed.
-    client.subscribe("RFID/cardID") # Office
-    client.subscribe("Remote_RFID/cardID") # Gate
+    client.subscribe("RFID/Office")
+    client.subscribe("RFID/Gate")
     client.subscribe("RFID/MeetingRoom") 
     client.subscribe("RFID/Mosque")
     client.subscribe("RFID/CoffeeShop")
-    client.subscribe("RFID/Bathroom")
+    client.subscribe("RFID/Restroom")
 
     client.subscribe("ULTRASONIC1")
     
     client.subscribe("LCD/write")
+    
     client.subscribe("/esp8266/temperature")
     client.subscribe("/esp8266/humidity")
     
@@ -44,10 +39,10 @@ def on_message(client, userdata, message):
    #print("Received message '" + payload + "' on topic '" + message.topic + "' with QoS " + str(message.qos))
    if message.topic == "/esp8266/temperature":
        print("temperature update")
-       socketio.emit('dht_temperature', {'data': message.payload})
+       #socketio.emit('dht_temperature', {'data': message.payload})
    if message.topic == "/esp8266/humidity":
        print("humidity update")
-       socketio.emit('dht_humidity', {'data': message.payload})
+       #socketio.emit('dht_humidity', {'data': message.payload})
    #if message.topic == "RFID/cardID":
    #print('RFID update', message.payload.decode("utf-8"))
 
@@ -55,30 +50,28 @@ def on_message(client, userdata, message):
       #print("Ultrasonic1:", payload)
       pass
 
+
+
+   if message.topic == "RFID/Office": # Gate for now
+      print('Gate RFID: ', payload)
+      logicSystem.gate_rfid_reading(payload, "Gate")
+      #print("Gate RFID: ", employee.name + ',', employee.cardID)
+      #socketio.emit('local_rfid', {'data': payload})
+
+   elif message.topic == "RFID/Gate": # should be office
+      print("Office RFID: ", payload)
+      #socketio.emit('remote_rfid', {'data': payload})
+
+   elif message.topic == "RFID/MeetingRoom":
+      print("RFID_MeetingRoom: ", payload)
+   elif message.topic == "RFID/Mosque":
+      print("RFID_Mosque: ", payload)
+   elif message.topic == "RFID/CoffeeShop":
+      print("RFID_CoffeeShop: ", payload)
+   elif message.topic == "RFID/Restroom":
+      print("RFID_Restroom: ", payload)
+      
    
-   if payload == "B9 B5 69 5":
-      payload = "Mohammed Al-Qarni"
-      mqttc.publish("LCD/write", "Mohammed Al-Qarni")
-   elif payload == "41 24 9B 66":
-      payload = "Baraa Ismail"
-      mqttc.publish("LCD/write", "Baraa Ismail")
-   elif payload == "41 24 9B 66":
-      payload = "Omar Bamarouf"
-   elif payload == "9 BA 52 5":
-      payload = "Raed Al-Harthi"
-   elif payload == "90 A2 42 83":
-      payload = "Ibrahim Al-Hasan"
-
-
-
-   if message.topic == "Remote_RFID/cardID":
-      print("Gate RFID: ", payload)
-      socketio.emit('remote_rfid', {'data': payload})
-
-   elif message.topic == "RFID/cardID":
-      print("Gate RFID:  ", payload)
-      socketio.emit('local_rfid', {'data': payload})
-      logicSystem.gate_rfid_reading(payload)
 
 
 mqttc=mqtt.Client()
@@ -142,6 +135,6 @@ def LCD_write():
 
    return render_template('wifi-data.html', **templateData)
 
-@socketio.on('my event')
-def handle_my_custom_event(json):
-    print('received json data here: ' + str(json))
+#@socketio.on('my event')
+#def handle_my_custom_event(json):
+#    print('received json data here: ' + str(json))

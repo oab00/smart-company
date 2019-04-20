@@ -1,5 +1,10 @@
-from app import app
+from app import create_app
+app = create_app()
 
+#import logging
+#log = logging.getLogger('werkzeug')
+#log.disabled = True
+#print("Root Handlers:", log.hasHandlers())
 
 
 if __name__ == "__main__":

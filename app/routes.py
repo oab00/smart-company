@@ -1,5 +1,5 @@
 from flask import render_template, flash, redirect, request, jsonify
-from app import app, db
+from flask import current_app as app
 from app.forms import LoginForm
 import sqlite3 as sql
 from datetime import datetime
