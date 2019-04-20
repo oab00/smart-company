@@ -34,7 +34,16 @@ try:
  
       # Print UID
       #UID = str(uid[0])+","+str(uid[1])+","+str(uid[2])+","+str(uid[3])
-      UID = "{0:x} {1:x} {2:x} {3:x}".format(uid[0], uid[1], uid[2], uid[3]).upper()
+
+      UID = ''
+
+      for i in range(4):
+        UID = UID + "{0:x}".format(uid[i]).zfill(2).upper() + ' '
+
+      UID = UID[:-1]
+      #print(UID)
+
+      #UID = "{0:x} {1:x} {2:x} {3:x}".format(uid[0], uid[1], uid[2], uid[3]).upper()
 
       print("UID: ", UID)
       client.publish("RFID/Office", UID)#publish

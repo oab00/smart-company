@@ -11,6 +11,6 @@ def create_app():
         #db = SQLAlchemy(app)
         #migrate = Migrate(app, db)
 
-        #from . import routes
+        from . import routes
         from . import mqtt_routes
     return app
