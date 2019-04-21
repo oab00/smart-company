@@ -64,7 +64,7 @@ def on_message(client, userdata, message):
       pass
 
    elif message.topic == "RFID/MeetingRoom":
-      print("RFID_MeetingRoom: ", "'" +payload+"'")
+      #print("RFID_MeetingRoom: ", "'" +payload+"'")
       logicSystem.rfid_reading(payload, "Meeting Room")
 
    elif message.topic == "RFID/Mosque":

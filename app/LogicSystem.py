@@ -63,8 +63,12 @@ class LogicSystem:
 
             employee.locations[location.name] = True
             location.employees.append(employee)
+
+            current_location = location.name
+            if current_location == 'Gate':
+                current_location = 'On Campus'
             
-            print("{} has entered the {}".format(employee.name, location.name))
+            print("\033[1;36;40m{}\033[0;37;40m has\033[1;32;40m entered\033[0;37;40m the \033[1;33;40m{}\033[0;37;40m and is now \033[1;33;40m{}\033[0;37;40m".format(employee.name, location.name, current_location))
 
             with sql.connect("database.db") as con:
                 cur = con.cursor()
@@ -84,7 +88,7 @@ class LogicSystem:
             else:
                 current_location = 'On Campus'
 
-            print("{} has left the {} and is now {}".format(employee.name, location.name, current_location))
+            print("\033[1;36;40m{}\033[0;37;40m has\033[1;31;40m left\033[0;37;40m the \033[1;33;40m{}\033[0;37;40m and is now \033[1;33;40m{}\033[0;37;40m".format(employee.name, location.name, current_location))
 
             with sql.connect("database.db") as con:
                 cur = con.cursor()
