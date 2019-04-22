@@ -6,9 +6,9 @@ import paho.mqtt.client as mqtt
 from flask_socketio import SocketIO, emit
 
 from . import LogicSystem
-logicSystem = LogicSystem.LogicSystem()
 
-#socketio = SocketIO(app)
+socketio = SocketIO(app)
+logicSystem = LogicSystem.LogicSystem(socketio)
 
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -39,28 +39,25 @@ def on_message(client, userdata, message):
    #print("Received message '" + payload + "' on topic '" + message.topic + "' with QoS " + str(message.qos))
    if message.topic == "/esp8266/temperature":
        print("temperature update")
-       #socketio.emit('dht_temperature', {'data': message.payload})
+       socketio.emit('dht_temperature', {'data': message.payload})
    if message.topic == "/esp8266/humidity":
-       print("humidity update")
-       #socketio.emit('dht_humidity', {'data': message.payload})
-   #if message.topic == "RFID/cardID":
-   #print('RFID update', message.payload.decode("utf-8"))
+      print("humidity update")
+      socketio.emit('dht_humidity', {'data': message.payload})
+   
 
    if message.topic == "ULTRASONIC1":
-      #print("Ultrasonic1:", payload)
-      pass
-
+      print("Ultrasonic1:", payload)
 
 
    if message.topic == "RFID/Office": # Gate for now
       #print('Gate RFID: ', payload)
       logicSystem.rfid_reading(payload, "Gate")
       #print("Gate RFID: ", employee.name + ',', employee.cardID)
-      #socketio.emit('local_rfid', {'data': payload})
+      socketio.emit('local_rfid', {'data': payload})
 
    elif message.topic == "RFID/Gate": # should be office
       print("Office RFID: ", payload)
-      #socketio.emit('remote_rfid', {'data': payload})
+      socketio.emit('remote_rfid', {'data': payload})
       pass
 
    elif message.topic == "RFID/MeetingRoom":
@@ -94,46 +91,74 @@ pins = {
    5 : {'name' : 'GPIO 5', 'board' : 'esp8266', 'topic' : 'esp8266/5', 'state' : 'False'}
    }
 
-# Put the pin dictionary into the template data dictionary:
-templateData = {
-   'pins' : pins
+
+
+def get_template_data(active_list, active_item):
+   locations = logicSystem.locations
+   return {
+      "employees": logicSystem.employees,
+      "locations": logicSystem.locations,
+      "active_list": active_list,
+      "active_item": active_item
    }
 
 
-@app.route("/")
-def wifi():
-   # Pass the template data into the template main.html and return it to the user
-   #return render_template('index.html', async_mode=socketio.async_mode, **templateData)
-   return render_template('wifi-data.html', **templateData)
+@app.route("/", strict_slashes=False)
+def homepage():
+   template_data = get_template_data('homepage', None)
+   return render_template('wifi-homepage.html', **template_data)
 
 
-@app.route("/main")
+@app.route("/main", strict_slashes=False)
 def main():
-   # Pass the template data into the template main.html and return it to the user
+   template_data = get_template_data(None, None)
+   return render_template('wifi-main.html', **template_data)
+
+
+@app.route("/wifi", strict_slashes=False)
+@app.route("/sensors", strict_slashes=False)
+def sensors():
+   template_data = get_template_data('sensors', None)
    #return render_template('index.html', async_mode=socketio.async_mode, **templateData)
-   return render_template('main.html', **templateData)
+   return render_template('wifi-sensors.html', **template_data, pins=pins)
 
 
-#@app.route("/employee", strict_slashes=False)
 @app.route("/employees", strict_slashes=False)
 def employees():
-   employees = logicSystem.employees
-   return render_template('wifi-employees.html', employees=employees)
+   template_data = get_template_data('employees', None)
+   return render_template('wifi-employees.html', **template_data)
+
+
+@app.route("/employee/<emp_name>", strict_slashes=False)
+def employee(emp_name):
+   emp_name = emp_name.replace('.', ' ')
+   employee = logicSystem.get_employee(emp_name)
+
+   template_data = get_template_data('employees', emp_name)
+   return render_template('wifi-employee.html', employee=employee, **template_data) 
+
+
+@app.route("/locations", strict_slashes=False)
+def locations():
+   template_data = get_template_data('locations', None)
+   return render_template('wifi-locations.html', **template_data)
+
+
+@app.route("/location/<loc_name>", strict_slashes=False)
+def location(loc_name):
+   loc_name = loc_name.replace('.', ' ')
+   location = logicSystem.get_location(loc_name)
+
+   template_data = get_template_data('locations', loc_name)
+   return render_template('wifi-location.html', location=location, **template_data)
 
 
 @app.route('/employee/assets/<path:path>')
 @app.route('/employees/assets/<path:path>')
-def employee_static(path):
-    #return send_from_directory(app.static_folder, "403.html")
+@app.route('/location/assets/<path:path>')
+@app.route('/locations/assets/<path:path>')
+def static_files_send(path):    
     return app.send_static_file(path)
-
-
-@app.route("/employee/<emp_name>")
-def employee(emp_name):
-   emp_name = emp_name.replace('.', ' ')
-   employee = logicSystem.get_employee(emp_name)
-   return render_template('wifi-employee.html', employee=employee)
-
 
 @app.route('/<path:path>')
 def serve_file_in_dir(path):
@@ -151,17 +176,13 @@ def LCD_write():
 
    print("Written to LCD")
 
-   return render_template('wifi-data.html', **templateData)
-
-
-
-
+   template_data = get_template_data(None, None)
+   return render_template('wifi-data.html', **template_data, pins=pins)
 
 
 #@socketio.on('my event')
 #def handle_my_custom_event(json):
 #    print('received json data here: ' + str(json))
-
 
 
 # The function below is executed when someone requests a URL with the pin number and action in it:
@@ -179,7 +200,6 @@ def action(board, changePin, action):
       mqttc.publish(pins[changePin]['topic'],"0")
       pins[changePin]['state'] = 'False'
    # Along with the pin dictionary, put the message into the template data dictionary:
-   templateData = {
-      'pins' : pins
-   }
-   return render_template('wifi-data.html', **templateData)
+
+   template_data = get_template_data(None, None)
+   return render_template('wifi-data.html', **template_data, pins=pins)

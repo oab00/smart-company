@@ -7,7 +7,8 @@ INSERT INTO EMPLOYEES (EMPLOYEE_NAME, EMPLOYEE_STATUS, RFID_CARD_ID, LOCATION_NA
             VALUES ('Omar Bamarouf', 'Available', '41 24 9B 66', 'Outside'),
                    ('Baraa Ismail', 'Available', 'B9 B5 69 05', 'Outside'),
                    ('Raed Al-Harthi', 'Available', '90 A2 42 83', 'Outside'),
-                   ('Ibrahim Hasan', 'Available', '?? ?? ?? ??', 'Outside');
+                   ('Ibrahim Hasan', 'Available', '?? ?? ?? ??', 'Outside'),
+                   ('Mohanned Asiri', 'Available', '?? ?? ?? ??', 'Outside');
 
 /*
 INSERT INTO RFIDS (EMPLOYEE_NAME, RFID_CARD_ID, RFID_LOCATION, RFID_STATUS)

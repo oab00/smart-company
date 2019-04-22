@@ -7,6 +7,7 @@ def create_app():
     app = Flask(__name__, static_url_path='/assets')
     #static_url_path='/assets'
     #static_folder='assets'
+    #return send_from_directory(app.static_folder, "403.html")
 
     with app.app_context():
         #app.config.from_object(Config)

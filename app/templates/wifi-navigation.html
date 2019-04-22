@@ -1,0 +1,58 @@
+<div class="main-menu">
+    <div class="menu-inner">
+        <nav>
+            <ul class="metismenu" id="menu">
+                <li {% if active_list == 'homepage' %}
+                        class="active"
+                    {% endif %}>
+                    <a href="{{ url_for('homepage') }}">
+                        <i class="ti-dashboard"></i>
+                        <span>Homepage</span>
+                    </a>
+                </li>
+                <li {% if active_list == 'employees' %}
+                        class="active"
+                    {% endif %}>
+                    <a href="javascript:void(0)" aria-expanded="true"><i class="ti-receipt"></i><span>Employees</span></a>
+                    <ul class="collapse">
+                        <!--<li class="active"><a href="index.html">Omar Bamarouf</a></li>-->
+                        {% for emp in employees %}
+                            <li {% if active_item == emp.name %}
+                                    class="active"
+                                {% endif %}>>
+                                <a href="{{ url_for('employee', emp_name=emp.name) }}">
+                                    {{emp.name}}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                <li {% if active_list == 'locations' %}
+                        class="active"
+                    {% endif %}>
+                    <a href="javascript:void(0)" aria-expanded="true"><i class="fa fa-table"></i><span>Locations</span></a>
+                    <ul class="collapse">
+                        {% for loc in locations %}
+                            <li {% if active_item == loc.name %}
+                                    class="active"
+                                {% endif %}>>
+                                <a href="{{ url_for('location', loc_name=loc.name) }}">
+                                    {{loc.name}}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                <li {% if active_list == 'sensors' %}
+                        class="active"
+                    {% endif %}>
+                    <a href="{{ url_for('sensors') }}">
+                        <i class="ti-palette"></i>
+                        <span>Sensors</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+</div>

@@ -4,7 +4,7 @@
 
 {% block head %}
 
-    <title>Employees</title>
+    <title>Locations</title>
 
 {% endblock %}
 
@@ -13,16 +13,26 @@
 
     <a href="{{ url_for('homepage') }}">←Go back to Homepage</a>
     <br /><br />
-    <h1>List of Employees:</h1>
+    <h1>List of Locations:</h1>
     <hr />
     <ul style="margin-left: 50px">
-        {% for emp in employees %}
-            <h4>
-                <a href="{{ url_for('employee', emp_name=emp.name) }}">
-                {{emp.name}}
+        {% for loc in locations %}
+            {% if loc.name != "On Campus" %} <!-- < REMOVE THIS -->
+            <h3 style="display: inline-block; margin: 10px">
+                <a href="{{ url_for('location', loc_name=loc.name) }}">
+                
+                {% if loc.name == "Gate" %}  <!-- < CHANGE THIS -->
+                    On Campus
+                {% else %}
+                    {{loc.name}}    
+                {% endif %}
                 </a>
-            </h4>
+            </h3>
+            <span style="font-size: 18px; color: purple">
+                ( {{ loc.get_num_of_visitors() }} Employees inside )
+            </span>
             <br />
+            {% endif %}
         {% endfor %}
     </ul>
 

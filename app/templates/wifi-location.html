@@ -4,27 +4,38 @@
 
 {% block head %}
 
-    <title>Employees</title>
+    <title>{{location.name}}</title>
 
 {% endblock %}
 
 
 {% block content %}
 
-    <a href="{{ url_for('homepage') }}">←Go back to Homepage</a>
+    <a href="{{ url_for('locations') }}">←Go back to list of Locations</a>
     <br /><br />
-    <h1>List of Employees:</h1>
+    <h1>Location Details</h1>
     <hr />
-    <ul style="margin-left: 50px">
-        {% for emp in employees %}
-            <h4>
-                <a href="{{ url_for('employee', emp_name=emp.name) }}">
-                {{emp.name}}
-                </a>
-            </h4>
+    <div style="margin-left: 50px">
+        <h2>{{location.name}}</h2>
+        <br />
+        <div style="margin-left: 50px">
+            <h3>Employees in Location:</h3>
             <br />
-        {% endfor %}
-    </ul>
+            <div style="margin-left: 50px">
+                {% if location.employees |length == 0 %}
+                    <h4 style="color: darkred">None</h4>
+                {% endif %}
+                {% for emp in location.employees %}
+                <h4>
+                    <a href="{{ url_for('employee', emp_name=emp.name) }}">
+                        {{emp.name}}
+                    </a>
+                </h4>
+                <br />
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
 

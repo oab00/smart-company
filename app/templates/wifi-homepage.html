@@ -1,0 +1,23 @@
+
+{% extends "wifi-main.html" %}
+
+
+{% block head %}
+
+    <title>Homepage</title>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <h1>Homepage</h1>
+    <hr />
+    <div style="margin-left: 50px">
+        <br />
+        <h3><a href="{{ url_for('employees') }}">List of Employees</h3>
+        <br /><br />
+        <h3><a href="{{ url_for('locations') }}">List of Locations</h3>
+    </div>
+
+{% endblock %}

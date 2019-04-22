@@ -1,5 +1,5 @@
 
-{% extends "main.html" %}
+{% extends "wifi-main.html" %}
 
 
 {% block head %}
@@ -11,7 +11,7 @@
 
 {% block content %}
 
-    <a href="{{ url_for('employees') }}">←Go back</a>
+    <a href="{{ url_for('employees') }}">←Go back to list of Employees</a>
     <br /><br />
     <h1>Employee Details</h1>
     <hr />
@@ -26,5 +26,30 @@
             <h4>Current Location: <span style="color: rgb(67, 52, 201)">{{employee.location}}</span></h4>
         </div>
     </div>
+
+{% endblock %}
+
+{% block scripts %}
+
+    <script type="text/javascript" charset="utf-8">
+        function ab2str(buf) {
+            return String.fromCharCode.apply(null, new Uint8Array(buf));
+        }
+
+        $(document).ready(function() {
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            console.log('http://' + document.domain + ':' + location.port)
+
+            socket.on('connect', function() {
+                socket.emit('my event', {data: 'I\'m connected!'});
+            });
+
+            socket.on('refresh', () => {
+                console.log('Refresh!')
+                location.reload()
+            })
+        });
+    </script>
 
 {% endblock %}

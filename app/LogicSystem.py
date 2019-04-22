@@ -2,24 +2,15 @@
 import sqlite3 as sql
 
 class LogicSystem:
-    def __init__(self):
-        self.employees = []
-        self.initialize_employees()
+    def __init__(self, socketio):
+        self.socketio = socketio
+
         self.locations = []
         self.initalize_locations()
 
+        self.employees = []
+        self.initialize_employees()
 
-    def initialize_employees(self):
-        with sql.connect("database.db") as con:
-            con.row_factory = sql.Row
-            cur = con.cursor()
-            cur.execute("SELECT * FROM EMPLOYEES")
-            employees = cur.fetchall()
-            for emp in employees:
-                self.employees.append( Employee(emp['EMPLOYEE_NAME'], 
-                                                emp['EMPLOYEE_STATUS'],
-                                                emp['RFID_CARD_ID'],
-                                                emp['LOCATION_NAME']) )
 
     def initalize_locations(self):
         locations = ["Outside", "On Campus", "Gate", "Office", 
@@ -29,11 +20,35 @@ class LogicSystem:
             rfid_code = "RFID/{}".format(loc.replace(' ', ''))
             self.locations.append(Location(loc, rfid_code))
 
+
+    def initialize_employees(self):
+        with sql.connect("database.db") as con:
+            con.row_factory = sql.Row
+            cur = con.cursor()
+            cur.execute("SELECT * FROM EMPLOYEES")
+            employees = cur.fetchall()
+            
+            outside = self.get_location("Outside")
+
+            for emp in employees:
+                employee = Employee(emp['EMPLOYEE_NAME'], 
+                                    emp['EMPLOYEE_STATUS'],
+                                    emp['RFID_CARD_ID'],
+                                    emp['LOCATION_NAME'])
+                self.employees.append(employee)
+                outside.employees.append(employee)
+
+
     def get_employee(self, emp_name):
-        employee = ''
         for emp in self.employees:
             if emp.name == emp_name:
                 return emp
+        return None
+
+    def get_location(self, loc_name):
+        for loc in self.locations:
+            if loc.name == loc_name:
+                return loc
         return None
 
     def rfid_reading(self, cardID, location):
@@ -60,15 +75,23 @@ class LogicSystem:
 
     def register_rfid_event(self, employee, location):
         if not employee.locations[location.name]: # If Entering a Room  
-
+            print('lol', employee.name, location.name)
             # Check if employee is inside one of the rooms
             if not employee.location == "Outside" and not employee.location == "On Campus":
+                print('meow')
                 print("{} can't get to {} because he's inside {}".format(employee.name,
                                                                     location.name, employee.location))
                 return
 
+            old_location = self.get_location(employee.location)
+            #print('woof', old_location.name, [employee.name for employee in old_location.employees])
+            old_location.employees.remove(employee)
+            #print('woof', old_location.name, [employee.name for employee in old_location.employees])
             employee.locations[location.name] = True
+            #print('nani', location.name)
             location.employees.append(employee)
+
+            #print("{} : {}".format(location.name, location.get_number_of_visitors()))
             employee.location = location.name
 
             current_location = location.name
@@ -77,6 +100,8 @@ class LogicSystem:
                 employee.location = 'On Campus'
             
             print("\033[1;36;40m{}\033[0;37;40m has\033[1;32;40m entered\033[0;37;40m the \033[1;33;40m{}\033[0;37;40m and is now \033[1;33;40m{}\033[0;37;40m".format(employee.name, location.name, current_location))
+
+            self.socketio.emit('refresh', {})
 
             with sql.connect("database.db") as con:
                 cur = con.cursor()
@@ -98,7 +123,12 @@ class LogicSystem:
                 current_location = 'On Campus'
                 employee.location = 'On Campus'
 
+            new_location = self.get_location(current_location)
+            new_location.employees.append(employee)
+
             print("\033[1;36;40m{}\033[0;37;40m has\033[1;31;40m left\033[0;37;40m the \033[1;33;40m{}\033[0;37;40m and is now \033[1;33;40m{}\033[0;37;40m".format(employee.name, location.name, current_location))
+
+            self.socketio.emit('refresh', {})
 
             with sql.connect("database.db") as con:
                 cur = con.cursor()
@@ -118,6 +148,8 @@ class Employee:
         self.cardID = cardID
         self.location = location
         self.locations = { # False = Leave , True = Enter
+            "Outside": True,
+            "On Campus": False,
             "Gate": False,
             "Office": False,
             "Meeting Room": False,
