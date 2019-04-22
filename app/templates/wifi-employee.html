@@ -1,0 +1,30 @@
+
+{% extends "main.html" %}
+
+
+{% block head %}
+
+    <title>{{employee.name}}</title>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <a href="{{ url_for('employees') }}">←Go back</a>
+    <br /><br />
+    <h1>Employee Details</h1>
+    <hr />
+    <div style="margin-left: 50px">
+        <h2>{{employee.name}}</h2>
+        <br />
+        <div style="margin-left: 50px">
+            <h4>RFID Card ID: <span style="color: rgb(67, 52, 201)">{{employee.cardID}}</span></h4>
+            <br />
+            <h4>Employee Status: <span style="color: rgb(67, 52, 201)">{{employee.status}}</span></h4>
+            <br />
+            <h4>Current Location: <span style="color: rgb(67, 52, 201)">{{employee.location}}</span></h4>
+        </div>
+    </div>
+
+{% endblock %}

@@ -4,9 +4,10 @@ DELETE FROM LOCATIONS;
 
 
 INSERT INTO EMPLOYEES (EMPLOYEE_NAME, EMPLOYEE_STATUS, RFID_CARD_ID, LOCATION_NAME) 
-            VALUES ('Omar Bamarouf', 'Outside', '41 24 9B 66', 'Outside'),
-                   ('Baraa Ismail', 'Outside', 'B9 B5 69 05', 'Outside'),
-                   ('Raed Al-Harthi', 'Outside', '90 A2 42 83', 'Outside');
+            VALUES ('Omar Bamarouf', 'Available', '41 24 9B 66', 'Outside'),
+                   ('Baraa Ismail', 'Available', 'B9 B5 69 05', 'Outside'),
+                   ('Raed Al-Harthi', 'Available', '90 A2 42 83', 'Outside'),
+                   ('Ibrahim Hasan', 'Available', '?? ?? ?? ??', 'Outside');
 
 /*
 INSERT INTO RFIDS (EMPLOYEE_NAME, RFID_CARD_ID, RFID_LOCATION, RFID_STATUS)

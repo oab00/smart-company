@@ -99,17 +99,70 @@ templateData = {
    'pins' : pins
    }
 
-@app.route("/main")
-def main():
-   # Pass the template data into the template main.html and return it to the user
-   #return render_template('index.html', async_mode=socketio.async_mode, **templateData)
-   return render_template('main.html', **templateData)
 
 @app.route("/")
 def wifi():
    # Pass the template data into the template main.html and return it to the user
    #return render_template('index.html', async_mode=socketio.async_mode, **templateData)
    return render_template('wifi-data.html', **templateData)
+
+
+@app.route("/main")
+def main():
+   # Pass the template data into the template main.html and return it to the user
+   #return render_template('index.html', async_mode=socketio.async_mode, **templateData)
+   return render_template('main.html', **templateData)
+
+
+#@app.route("/employee", strict_slashes=False)
+@app.route("/employees", strict_slashes=False)
+def employees():
+   employees = logicSystem.employees
+   return render_template('wifi-employees.html', employees=employees)
+
+
+@app.route('/employee/assets/<path:path>')
+@app.route('/employees/assets/<path:path>')
+def employee_static(path):
+    #return send_from_directory(app.static_folder, "403.html")
+    return app.send_static_file(path)
+
+
+@app.route("/employee/<emp_name>")
+def employee(emp_name):
+   emp_name = emp_name.replace('.', ' ')
+   employee = logicSystem.get_employee(emp_name)
+   return render_template('wifi-employee.html', employee=employee)
+
+
+@app.route('/<path:path>')
+def serve_file_in_dir(path):
+    #return send_from_directory(app.static_folder, path)
+    return app.send_static_file(path)
+
+
+@app.route("/LCD_Write/")
+def LCD_write():  
+   mqttc.publish("LCD/write", "OMAR IS BOSS")
+
+   for i in range(21):
+      time.sleep(0.25)
+      mqttc.publish("LCD/write", "OMAR IS BOSS " + str(i))
+
+   print("Written to LCD")
+
+   return render_template('wifi-data.html', **templateData)
+
+
+
+
+
+
+#@socketio.on('my event')
+#def handle_my_custom_event(json):
+#    print('received json data here: ' + str(json))
+
+
 
 # The function below is executed when someone requests a URL with the pin number and action in it:
 @app.route("/<board>/<changePin>/<action>")
@@ -130,19 +183,3 @@ def action(board, changePin, action):
       'pins' : pins
    }
    return render_template('wifi-data.html', **templateData)
-
-@app.route("/LCD_Write/")
-def LCD_write():  
-   mqttc.publish("LCD/write", "OMAR IS BOSS")
-
-   for i in range(21):
-      time.sleep(0.25)
-      mqttc.publish("LCD/write", "OMAR IS BOSS " + str(i))
-
-   print("Written to LCD")
-
-   return render_template('wifi-data.html', **templateData)
-
-#@socketio.on('my event')
-#def handle_my_custom_event(json):
-#    print('received json data here: ' + str(json))

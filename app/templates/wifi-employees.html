@@ -1,0 +1,27 @@
+
+{% extends "main.html" %}
+
+
+{% block head %}
+
+    <title>Employees</title>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <h1>List of Employees:</h1>
+    <hr />
+    <ul style="margin-left: 50px">
+        {% for emp in employees %}
+            <h4>
+                <a href="{{ url_for('employee', emp_name=emp.name) }}">
+                {{emp.name}}
+                </a>
+            </h4>
+            <br />
+        {% endfor %}
+    </ul>
+
+{% endblock %}

@@ -29,6 +29,12 @@ class LogicSystem:
             rfid_code = "RFID/{}".format(loc.replace(' ', ''))
             self.locations.append(Location(loc, rfid_code))
 
+    def get_employee(self, emp_name):
+        employee = ''
+        for emp in self.employees:
+            if emp.name == emp_name:
+                return emp
+        return None
 
     def rfid_reading(self, cardID, location):
         employee = ''
@@ -63,10 +69,12 @@ class LogicSystem:
 
             employee.locations[location.name] = True
             location.employees.append(employee)
+            employee.location = location.name
 
             current_location = location.name
             if current_location == 'Gate':
                 current_location = 'On Campus'
+                employee.location = 'On Campus'
             
             print("\033[1;36;40m{}\033[0;37;40m has\033[1;32;40m entered\033[0;37;40m the \033[1;33;40m{}\033[0;37;40m and is now \033[1;33;40m{}\033[0;37;40m".format(employee.name, location.name, current_location))
 
@@ -85,8 +93,10 @@ class LogicSystem:
             current_location = ''
             if location.name == 'Gate':
                 current_location = 'Outside'
+                employee.location = 'Outside'
             else:
                 current_location = 'On Campus'
+                employee.location = 'On Campus'
 
             print("\033[1;36;40m{}\033[0;37;40m has\033[1;31;40m left\033[0;37;40m the \033[1;33;40m{}\033[0;37;40m and is now \033[1;33;40m{}\033[0;37;40m".format(employee.name, location.name, current_location))
 
@@ -99,13 +109,6 @@ class LogicSystem:
                 con.commit()
 
 
-
-class Location:
-    def __init__(self, name, rfid_code):
-        self.name = name
-        self.rfid_code = rfid_code
-        self.visitors = 0
-        self.employees = []
 
 
 class Employee:
@@ -124,6 +127,17 @@ class Employee:
         }  
 
 
-class Office:
-    def __init__(self):
-        pass
+class Location:
+    def __init__(self, name, rfid_code):
+        self.name = name
+        self.rfid_code = rfid_code
+        self.visitors = 0
+        self.employees = []
+
+    def get_num_of_visitors(self):
+        return len(self.employees) + self.visitors
+
+
+class Office(Location):
+    def __init__(self, name, rfid_code):
+        Location.__init__(self, name, rfid_code)

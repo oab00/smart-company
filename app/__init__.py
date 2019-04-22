@@ -5,6 +5,8 @@ from flask import Flask
 
 def create_app():
     app = Flask(__name__, static_url_path='/assets')
+    #static_url_path='/assets'
+    #static_folder='assets'
 
     with app.app_context():
         #app.config.from_object(Config)
