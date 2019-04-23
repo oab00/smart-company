@@ -1,50 +1,44 @@
-import RPi.GPIO as GPIO
-import time
-import requests
 
-try:
+'''
+UltrasonicReadingOut = 0
+UltrasonicReadingIn = 0
+Visitors = 0
 
-      GPIO.setmode(GPIO.BCM)
+while True:
+	while UltrasonicReadingOut <100:
+		time.sleep(1)
+		if UltrasonicReadingIn <100:
+			Visitors += 1
+		else:
+			break
 
-      PIN_TRIGGER = 4
-      PIN_ECHO = 17
+	while UltrasonicReadingIn <100:
+		time.sleep(1)
+		if UltrasonicReadingOut <100:
+			Visitors -= 1
+			if Visitors = 0:
+				EmployeeStatus = "Available"
+		else:
+			break 
+'''
 
-      GPIO.setup(PIN_TRIGGER, GPIO.OUT)
-      GPIO.setup(PIN_ECHO, GPIO.IN)
+# MQTT Turn On
+# MQTT Turn OFF
+# MQTT Reading
 
-      GPIO.output(PIN_TRIGGER, GPIO.LOW)
+import paho.mqtt.client as paho
+client= paho.Client("Ultrasonic_Main")
 
-      print "Waiting for sensor to settle"
 
-      time.sleep(2)
 
-      print "Calculating distance"
-      
-      while True:
 
-	      GPIO.output(PIN_TRIGGER, GPIO.HIGH)
-	
-	      time.sleep(0.00001)
-	
-	      GPIO.output(PIN_TRIGGER, GPIO.LOW)
-	
-	      while GPIO.input(PIN_ECHO)==0:
-	            pulse_start_time = time.time()
-	      while GPIO.input(PIN_ECHO)==1:
-	            pulse_end_time = time.time()
-	
-	      pulse_duration = pulse_end_time - pulse_start_time
-	      distance = round(pulse_duration * 17150, 2)
 
-	      requests.get('http://localhost:5000/adddist?dist={}'.format(distance))
-	      
 
-	      print("Distance:", distance, "cm")
 
-              if distance <= 10.0:
-		     print("There is an object closeby.")
 
-	      time.sleep(3)
 
-finally:
-      GPIO.cleanup()                     
+
+
+
+
+

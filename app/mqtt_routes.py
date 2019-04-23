@@ -13,23 +13,21 @@ logicSystem = LogicSystem.LogicSystem(socketio)
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
+   print("Connected with result code "+str(rc))
 
-    # Subscribing in on_connect() means that if we lose the connection and
-    # reconnect then subscriptions will be renewed.
-    client.subscribe("RFID/Office")
-    client.subscribe("RFID/Gate")
-    client.subscribe("RFID/MeetingRoom") 
-    client.subscribe("RFID/Mosque")
-    client.subscribe("RFID/CoffeeShop")
-    client.subscribe("RFID/Restroom")
+   # Subscribing in on_connect() means that if we lose the connection and
+   # reconnect then subscriptions will be renewed.
+   client.subscribe("RFID/Office")
+   client.subscribe("RFID/Gate")
+   client.subscribe("RFID/MeetingRoom") 
+   client.subscribe("RFID/Mosque")
+   client.subscribe("RFID/CoffeeShop")
+   client.subscribe("RFID/Restroom")
 
-    client.subscribe("ULTRASONIC1")
-    
-    client.subscribe("LCD/write")
-    
-    client.subscribe("/esp8266/temperature")
-    client.subscribe("/esp8266/humidity")
+   client.subscribe("LCD/write")
+   client.subscribe("Ultrasonic_Main")
+   client.subscribe("/esp8266/temperature")
+   client.subscribe("/esp8266/humidity")
     
 
 # The callback for when a PUBLISH message is received from the ESP8266.
@@ -49,15 +47,16 @@ def on_message(client, userdata, message):
       print("Ultrasonic1:", payload)
 
 
-   if message.topic == "RFID/Office": # Gate for now
+   if message.topic == "RFID/Gate": # Gate for now
       #print('Gate RFID: ', payload)
       logicSystem.rfid_reading(payload, "Gate")
       #print("Gate RFID: ", employee.name + ',', employee.cardID)
       socketio.emit('local_rfid', {'data': payload})
 
-   elif message.topic == "RFID/Gate": # should be office
+   elif message.topic == "RFID/Office": # should be office
       print("Office RFID: ", payload)
       socketio.emit('remote_rfid', {'data': payload})
+      logicSystem.office_rfid_reading(payload)
       pass
 
    elif message.topic == "RFID/MeetingRoom":
