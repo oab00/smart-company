@@ -1,7 +1,7 @@
 from flask import Flask, render_template, flash, redirect, request, jsonify
 from flask import current_app as app
 import sqlite3 as sql
-from time import time
+import time 
 import paho.mqtt.client as mqtt
 from flask_socketio import SocketIO, emit
 
@@ -13,7 +13,7 @@ logicSystem = LogicSystem.LogicSystem(socketio)
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
-   print("Connected with result code "+str(rc))
+   print("Connected with result code " + str(rc))
 
    # Subscribing in on_connect() means that if we lose the connection and
    # reconnect then subscriptions will be renewed.
@@ -25,7 +25,7 @@ def on_connect(client, userdata, flags, rc):
    client.subscribe("RFID/Restroom")
 
    client.subscribe("LCD/write")
-   client.subscribe("Ultrasonic_Main")
+   client.subscribe("Ultrasonic/Main")
    client.subscribe("/esp8266/temperature")
    client.subscribe("/esp8266/humidity")
     
@@ -38,16 +38,17 @@ def on_message(client, userdata, message):
    if message.topic == "/esp8266/temperature":
        print("temperature update")
        socketio.emit('dht_temperature', {'data': message.payload})
-   if message.topic == "/esp8266/humidity":
+
+   elif message.topic == "/esp8266/humidity":
       print("humidity update")
       socketio.emit('dht_humidity', {'data': message.payload})
    
 
-   if message.topic == "ULTRASONIC1":
+   elif message.topic == "ULTRASONIC1":
       print("Ultrasonic1:", payload)
 
 
-   if message.topic == "RFID/Gate": # Gate for now
+   elif message.topic == "RFID/Gate": # Gate for now
       #print('Gate RFID: ', payload)
       logicSystem.rfid_reading(payload, "Gate")
       #print("Gate RFID: ", employee.name + ',', employee.cardID)
@@ -57,7 +58,6 @@ def on_message(client, userdata, message):
       print("Office RFID: ", payload)
       socketio.emit('remote_rfid', {'data': payload})
       logicSystem.office_rfid_reading(payload)
-      pass
 
    elif message.topic == "RFID/MeetingRoom":
       #print("RFID_MeetingRoom: ", "'" +payload+"'")
@@ -75,6 +75,9 @@ def on_message(client, userdata, message):
       print("RFID_Restroom: ", payload)
       logicSystem.rfid_reading(payload, "Restroom")
       
+   elif message.topic == "Ultrasonic/Main":
+      logicSystem.office.set_visitors(payload)
+      
    
 
 
@@ -89,8 +92,6 @@ pins = {
    4 : {'name' : 'GPIO 4', 'board' : 'esp8266', 'topic' : 'esp8266/4', 'state' : 'False'},
    5 : {'name' : 'GPIO 5', 'board' : 'esp8266', 'topic' : 'esp8266/5', 'state' : 'False'}
    }
-
-
 
 def get_template_data(active_list, active_item):
    locations = logicSystem.locations

@@ -224,26 +224,31 @@ class Office(Location):
                 con.commit()
 
             # Turn On Ultrasonic
-            
+
+            # Enter / Leave ?
 
         else:
             other_employee = self.logicSystem.get_employee_by_rfid(cardID)
             print("{} has entered {}'s office".format(other_employee, self.employee.name))
 
+            # Check if Main Employee is in Office
+
             # Turn System On Based on Defaults
             
+            # Default Light = Medium
 
-            # Turn On System
-    # Office RFID Detected?
+            # Default Temperature = 24C
 
-    # Default = [Lights:MEDIUM,Temperature:24C]
-    # Preference = [Lights:Pref, Temperature:Pref]
-    
-    # def OfficeRFID(cardID):
-    #    if cardID =! "41 24 9B 66"
-    #    TurnSystemOn = Default
-    #    SaveEmployeeData
-    #    elif cardID == "41 24 9B 66"
-    #    TurnSystemOn = Preference
-    #    time.sleep(5)
-    #    Ultrasonics = ON
+            # Enter / Leave ?
+
+    def set_visitors(self, status):
+        visitors = self.visitors
+        if status == "INCREASE":
+            self.visitors = visitors + 1
+        elif status == "DECREASE":
+            if visitors > 0:
+                self.visitors = visitors - 1
+            
+            elif visitors == 0:
+                # EmployeeStatus = "Available"
+                self.employee.status = "Available"
