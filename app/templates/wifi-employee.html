@@ -6,6 +6,56 @@
 
     <title>{{employee.name}}</title>
 
+    <style>
+        .employee {
+            margin-top: 50px;
+            margin-left: 50px;
+        }
+
+        .employee_detail {
+            margin-left: 50px;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .employee_rfids {
+            display: inline-block;
+            margin-left: 200px;
+            font-size: 18px;
+            border: solid black 1px;
+        }
+
+        .fixed_header{
+            width: 600px;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        .fixed_header tbody{
+            display: block;
+            width: 100%;
+            overflow: auto;
+            height: 300px;
+        }
+
+        .fixed_header thead tr {
+            display: block;
+        }
+
+        .fixed_header thead {
+            background: rgb(71, 7, 71);
+            color:#fff;
+        }
+
+        .fixed_header th, .fixed_header td {
+            padding: 10px;
+            text-align: left;
+            width: 200px;
+            border: solid rgba(0, 0, 0, 0.2) 1px;
+            text-align: center;
+        }
+    </style>
+
 {% endblock %}
 
 
@@ -15,15 +65,48 @@
     <br /><br />
     <h1>Employee Details</h1>
     <hr />
-    <div style="margin-left: 50px">
+    <div class="employee">
         <h2>{{employee.name}}</h2>
         <br />
-        <div style="margin-left: 50px">
+        <div class="employee_detail">
             <h4>RFID Card ID: <span style="color: rgb(67, 52, 201)">{{employee.cardID}}</span></h4>
             <br />
             <h4>Employee Status: <span style="color: rgb(67, 52, 201)">{{employee.status}}</span></h4>
             <br />
             <h4>Current Location: <span style="color: rgb(67, 52, 201)">{{employee.location}}</span></h4>
+        </div>
+        <div class="employee_rfids">
+            <table class="fixed_header">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rfid in rfids: %}
+                    <tr id="{% if rfid['count'] == length: %}last-element{% endif %}">
+                        <td>{{ rfid['date'] }}</td>
+                        <td>{{ rfid['time'] }}</td>
+                        <td>{{ rfid['location'] }}</td>
+                        <td>
+                            <span style="{% if rfid['status'] == 'Enter': %}
+                                            color: green;
+                                         {% else: %}
+                                            color: red;
+                                         {% endif %}">
+                                    {{ rfid['status'] }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <script>
+                        document.getElementById('last-element').scrollIntoView(false);
+                    </script>
+                </tbody>
+            </table>
         </div>
     </div>
 

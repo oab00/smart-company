@@ -1,5 +1,6 @@
 
 import sqlite3 as sql
+from datetime import datetime
 
 class LogicSystem:
     def __init__(self, socketio):
@@ -11,6 +12,8 @@ class LogicSystem:
 
         self.employees = []
         self.initialize_employees()
+
+        self.rfids = RFIDs()
 
 
     def initalize_locations(self):
@@ -102,7 +105,6 @@ class LogicSystem:
             #print('lol', employee.name, location.name)
             # Check if employee is inside one of the rooms
             if not employee.location == "Outside" and not employee.location == "On Campus":
-                print('meow')
                 print("{} can't get to {} because he's inside {}".format(employee.name,
                                                                     location.name, employee.location))
                 return
@@ -222,6 +224,8 @@ class Office(Location):
                                                                           self.employee.cardID,
                                                                           "Office"))
                 con.commit()
+            
+            self.logicSystem.socketio.emit('refresh', {})
 
             # Turn On Ultrasonic
 
@@ -229,7 +233,7 @@ class Office(Location):
 
         else:
             other_employee = self.logicSystem.get_employee_by_rfid(cardID)
-            print("{} has entered {}'s office".format(other_employee, self.employee.name))
+            print("{} has entered {}'s office".format(other_employee.name, self.employee.name))
 
             # Check if Main Employee is in Office
 
@@ -252,3 +256,32 @@ class Office(Location):
             elif visitors == 0:
                 # EmployeeStatus = "Available"
                 self.employee.status = "Available"
+
+
+class RFIDs:
+    def __init__(self):
+        pass
+    
+    def get_rfids_for_employee(self, employee):
+        with sql.connect("database.db") as con:
+            con.row_factory = sql.Row
+            cur = con.cursor()
+            cur.execute("SELECT * FROM RFIDS WHERE EMPLOYEE_NAME = '{}';".format(employee.name))
+            rfid_readings = cur.fetchall()
+
+            rfids = []
+            count = 1
+            for reading in rfid_readings:
+                date_time = reading['DATETIME'].split(' ')
+                rfid = {
+                        'count': count,
+                        'date': date_time[0],
+                        'time': date_time[1],
+                        'location': reading['RFID_LOCATION'], 
+                        'status':   reading['RFID_STATUS']
+                        }
+                rfids.append(rfid)
+                count = count + 1
+
+            return rfids
+                

@@ -48,13 +48,13 @@ def on_message(client, userdata, message):
       print("Ultrasonic1:", payload)
 
 
-   elif message.topic == "RFID/Gate": # Gate for now
+   elif message.topic == "RFID/Office": # Gate for now
       #print('Gate RFID: ', payload)
       logicSystem.rfid_reading(payload, "Gate")
       #print("Gate RFID: ", employee.name + ',', employee.cardID)
       socketio.emit('local_rfid', {'data': payload})
 
-   elif message.topic == "RFID/Office": # should be office
+   elif message.topic == "RFID/Gate": # should be office
       print("Office RFID: ", payload)
       socketio.emit('remote_rfid', {'data': payload})
       logicSystem.office_rfid_reading(payload)
@@ -134,8 +134,12 @@ def employee(emp_name):
    emp_name = emp_name.replace('.', ' ')
    employee = logicSystem.get_employee(emp_name)
 
+   rfids = logicSystem.rfids.get_rfids_for_employee(employee)
+   length = len(rfids)
+   #print([rfid['location'] for rfid in rfids])
+
    template_data = get_template_data('employees', emp_name)
-   return render_template('wifi-employee.html', employee=employee, **template_data) 
+   return render_template('wifi-employee.html', employee=employee, rfids=rfids, length=length, **template_data) 
 
 
 @app.route("/locations", strict_slashes=False)
