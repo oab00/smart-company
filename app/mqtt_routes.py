@@ -136,7 +136,6 @@ def employee(emp_name):
 
    rfids = logicSystem.rfids.get_rfids_for_employee(employee)
    length = len(rfids)
-   #print([rfid['location'] for rfid in rfids])
 
    template_data = get_template_data('employees', emp_name)
    return render_template('wifi-employee.html', employee=employee, rfids=rfids, length=length, **template_data) 
@@ -153,8 +152,11 @@ def location(loc_name):
    loc_name = loc_name.replace('.', ' ')
    location = logicSystem.get_location(loc_name)
 
+   rfids = logicSystem.rfids.get_rfids_for_location(location)
+   length = len(rfids)
+
    template_data = get_template_data('locations', loc_name)
-   return render_template('wifi-location.html', location=location, **template_data)
+   return render_template('wifi-location.html', location=location, rfids=rfids, length=length, **template_data)
 
 
 @app.route('/employee/assets/<path:path>')

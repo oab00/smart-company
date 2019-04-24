@@ -284,4 +284,27 @@ class RFIDs:
                 count = count + 1
 
             return rfids
+
+    def get_rfids_for_location(self, location):
+        with sql.connect("database.db") as con:
+            con.row_factory = sql.Row
+            cur = con.cursor()
+            cur.execute("SELECT * FROM RFIDS WHERE RFID_LOCATION = '{}';".format(location.name))
+            rfid_readings = cur.fetchall()
+
+            rfids = []
+            count = 1
+            for reading in rfid_readings:
+                date_time = reading['DATETIME'].split(' ')
+                rfid = {
+                        'count': count,
+                        'date': date_time[0],
+                        'time': date_time[1],
+                        'employee': reading['EMPLOYEE_NAME'], 
+                        'status':   reading['RFID_STATUS']
+                        }
+                rfids.append(rfid)
+                count = count + 1
+
+            return rfids
                 

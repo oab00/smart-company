@@ -6,6 +6,56 @@
 
     <title>{{location.name}}</title>
 
+    <style>
+            .location {
+                margin-top: 50px;
+                margin-left: 50px;
+            }
+    
+            .location_detail {
+                margin-left: 50px;
+                display: inline-block;
+                vertical-align: top;
+            }
+    
+            .location_rfids {
+                display: inline-block;
+                margin-left: 300px;
+                font-size: 18px;
+                border: solid black 1px;
+            }
+    
+            .fixed_header{
+                width: 600px;
+                table-layout: fixed;
+                border-collapse: collapse;
+            }
+    
+            .fixed_header tbody{
+                display: block;
+                width: 100%;
+                overflow: auto;
+                height: 300px;
+            }
+    
+            .fixed_header thead tr {
+                display: block;
+            }
+    
+            .fixed_header thead {
+                background: rgb(71, 7, 71);
+                color:#fff;
+            }
+    
+            .fixed_header th, .fixed_header td {
+                padding: 10px;
+                text-align: left;
+                width: 200px;
+                border: solid rgba(0, 0, 0, 0.2) 1px;
+                text-align: center;
+            }
+        </style>
+
 {% endblock %}
 
 
@@ -15,13 +65,13 @@
     <br /><br />
     <h1>Location Details</h1>
     <hr />
-    <div style="margin-left: 50px">
+    <div class="location">
         <h2>{{location.name}}</h2>
         <br />
-        <div style="margin-left: 50px">
+        <div style="margin-left: 50px;">
             <h3>Employees in Location:</h3>
             <br />
-            <div style="margin-left: 50px">
+            <div class="location_detail">
                 {% if location.employees |length == 0 %}
                     <h4 style="color: darkred">None</h4>
                 {% endif %}
@@ -33,6 +83,39 @@
                 </h4>
                 <br />
                 {% endfor %}
+            </div>
+            <div class="location_rfids">
+                <table class="fixed_header">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Employee</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rfid in rfids: %}
+                        <tr id="{% if rfid['count'] == length: %}last-element{% endif %}">
+                            <td>{{ rfid['date'] }}</td>
+                            <td>{{ rfid['time'] }}</td>
+                            <td>{{ rfid['employee'] }}</td>
+                            <td>
+                                <span style="{% if rfid['status'] == 'Enter': %}
+                                                color: green;
+                                                {% else: %}
+                                                color: red;
+                                                {% endif %}">
+                                        {{ rfid['status'] }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        <script>
+                            document.getElementById('last-element').scrollIntoView(false);
+                        </script>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
