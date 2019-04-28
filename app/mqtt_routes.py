@@ -53,6 +53,8 @@ def on_message(client, userdata, message):
       logicSystem.rfid_reading(payload, "Gate")
       #print("Gate RFID: ", employee.name + ',', employee.cardID)
       socketio.emit('local_rfid', {'data': payload})
+      employee = logicSystem.get_employee_by_rfid(payload)
+      mqttc.publish("LCD/write", employee.name)
 
    elif message.topic == "RFID/Gate": # should be office
       print("Office RFID: ", payload)
@@ -86,6 +88,9 @@ mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 mqttc.connect("localhost",1883,60)
 mqttc.loop_start()
+
+
+mqttc.publish("LCD/write", "")
 
 # Create a dictionary called pins to store the pin number, name, and pin state:
 pins = {
