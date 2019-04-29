@@ -164,6 +164,12 @@ def location(loc_name):
    return render_template('wifi-location.html', location=location, rfids=rfids, length=length, **template_data)
 
 
+@app.route("/statistics", strict_slashes=False)
+def statistics():
+   template_data = get_template_data(None, None)
+   return render_template('wifi-statistics.html', **template_data)
+
+
 @app.route('/employee/assets/<path:path>')
 @app.route('/employees/assets/<path:path>')
 @app.route('/location/assets/<path:path>')

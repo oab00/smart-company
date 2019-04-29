@@ -1,0 +1,53 @@
+
+{% extends "wifi-main.html" %}
+
+
+{% block head %}
+
+    <title>Statistics</title>
+
+    <style>
+            
+        </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div>
+        <hr />
+        <h1>Employee Performance</h1>
+        <hr />
+        <br /><br />
+        <hr />
+        <h1>Electricity Consumption</h1>
+        <hr />
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+
+    <script type="text/javascript" charset="utf-8">
+        function ab2str(buf) {
+            return String.fromCharCode.apply(null, new Uint8Array(buf));
+        }
+
+        $(document).ready(function() {
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            console.log('http://' + document.domain + ':' + location.port)
+
+            socket.on('connect', function() {
+                socket.emit('my event', {data: 'I\'m connected!'});
+            });
+
+            socket.on('refresh', () => {
+                console.log('Refresh!')
+                location.reload()
+            })
+        });
+    </script>
+
+{% endblock %}
