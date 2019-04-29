@@ -1,7 +1,12 @@
 DELETE FROM EMPLOYEES;
 DELETE FROM RFIDS;
 DELETE FROM LOCATIONS;
+DELETE FROM CONSUMPTIONS;
 
+/* SQL Table Display:
+    .mode column
+    .headers on
+*/
 
 INSERT INTO EMPLOYEES (EMPLOYEE_NAME, EMPLOYEE_STATUS, RFID_CARD_ID, LOCATION_NAME) 
             VALUES ('Omar Bamarouf', 'Available', '41 24 9B 66', 'Outside'),
@@ -10,13 +15,6 @@ INSERT INTO EMPLOYEES (EMPLOYEE_NAME, EMPLOYEE_STATUS, RFID_CARD_ID, LOCATION_NA
                    ('Ibrahim Hasan', 'Available', '?? ?? ?? ??', 'Outside'),
                    ('Mohanned Asiri', 'Available', '?? ?? ?? ??', 'Outside');
 
-/*
-INSERT INTO RFIDS (EMPLOYEE_NAME, RFID_CARD_ID, RFID_LOCATION, RFID_STATUS)
-            VALUES ('Omar Bamarouf', '41 24 9B 66', 'Gate', 'Enter'),
-                   ('Omar Bamarouf', '41 24 9B 66', 'Gate', 'Leave'),
-                   ('Baraa Ismail', 'B9 B5 69 5', 'Office', 'Enter'),
-                   ('Baraa Ismail', 'B9 B5 69 5', 'Office', 'Leave');
-*/
 
 INSERT INTO LOCATIONS (LOCATION_NAME, RFID_CODE)
             VALUES ('Outside', NULL),
@@ -29,7 +27,8 @@ INSERT INTO LOCATIONS (LOCATION_NAME, RFID_CODE)
                    ('Meeting Room', 'MeetingRoom');
 
 
-/* SQL Table Display:
-    .mode column
-    .headers on
-*/
+INSERT INTO CONSUMPTIONS (START_DATE, END_DATE, LED_CONSUMPTION, AC_CONSUMPTION, 
+                          PC_CONSUMPTION, LOCATION_NAME, EMPLOYEE_NAME)
+            VALUES ('2019-04-29 8:00:00', '2019-04-29 10:00:00', 15, 900, 180, 'Office', 'Omar Bamarouf'),
+                   ('2019-04-29 10:00:00', '2019-04-29 12:00:00', 15, 900, 180, 'Meeting Room', NULL),
+                   ('2019-04-29 13:00:00', '2019-04-29 16:00:00', 15, 900, 180, 'Office', 'Omar Bamarouf');

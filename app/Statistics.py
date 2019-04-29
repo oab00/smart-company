@@ -3,8 +3,8 @@ import sqlite3 as sql
 
 class Statistics:
     def __init__(self):
-        self.consumption = Consumption()
-        self.performance = Performance()
+        self.consumption = Consumptions()
+        self.performance = Performances()
 
 
 class Consumptions:
@@ -21,22 +21,34 @@ class Consumptions:
             
             for cons in consumptions:
                 consumption = Consumption(cons['CONSUMPTION_ID'], 
-                                          cons['DATE'],
+                                          cons['START_DATE'],
+                                          cons['END_DATE'],
                                           cons['LED_CONSUMPTION'],
                                           cons['AC_CONSUMPTION'],
                                           cons['PC_CONSUMPTION'],
                                           cons['LOCATION_NAME'],
                                           cons['EMPLOYEE_NAME'])
 
-                self.consumptions.append(cons)
+                self.consumptions.append(consumption)
+
+
+    def get_consumptions(self):
+        return self.consumptions
+        
 
 class Consumption:
-    def __init__(CONSUMPTION_ID, DATE, LED_CONSUMPTION, AC_CONSUMPTION,
-                 PC_CONSUMPTION, LOCATION_NAME, EMPLOYEE_NAME):
+    def __init__(self, CONSUMPTION_ID, START_DATE, END_DATE, LED_CONSUMPTION, 
+                 AC_CONSUMPTION, PC_CONSUMPTION, LOCATION_NAME, EMPLOYEE_NAME):
         self.id = CONSUMPTION_ID
-        date = DATE.split(' ')
-        self.date = date[0]
-        self.time = date[1]
+
+        date_start = START_DATE.split(' ')
+        self.start_date = date_start[0]
+        self.start_time = date_start[1]
+
+        date_end = END_DATE.split(' ')
+        self.end_date = date_end[0]
+        self.end_time = date_end[1]
+        
         self.LED = LED_CONSUMPTION
         self.AC = AC_CONSUMPTION
         self.PC = PC_CONSUMPTION
@@ -53,5 +65,5 @@ class Performances:
         pass
 
 class Performance:
-    def __init__()
+    def __init__(self):
         pass

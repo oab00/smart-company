@@ -6,10 +6,11 @@ import paho.mqtt.client as mqtt
 from flask_socketio import SocketIO, emit
 
 from . import LogicSystem
+from . import Statistics
 
 socketio = SocketIO(app)
 logicSystem = LogicSystem.LogicSystem(socketio)
-
+statistics = Statistics.Statistics()
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
@@ -165,15 +166,18 @@ def location(loc_name):
 
 
 @app.route("/statistics", strict_slashes=False)
-def statistics():
+def statistics_url():
+   consumptions = statistics.consumption.get_consumptions()
+
    template_data = get_template_data(None, None)
-   return render_template('wifi-statistics.html', **template_data)
+   return render_template('wifi-statistics.html', **template_data, consumptions=consumptions)
 
 
 @app.route('/employee/assets/<path:path>')
 @app.route('/employees/assets/<path:path>')
 @app.route('/location/assets/<path:path>')
 @app.route('/locations/assets/<path:path>')
+@app.route('/statistics/assets/<path:path>')
 def static_files_send(path):    
     return app.send_static_file(path)
 
