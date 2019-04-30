@@ -2,13 +2,18 @@ from flask import Flask, render_template, flash, redirect, request, jsonify
 from flask import current_app as app
 import sqlite3 as sql
 import time 
+import json
 import paho.mqtt.client as mqtt
 from flask_socketio import SocketIO, emit
 
 from . import LogicSystem
 from . import Statistics
 
-socketio = SocketIO(app)
+#from kombu import Connection
+#connection = Connection('amqp://guest:guest@0.0.0.0:5672//')
+#connection.connect()
+
+socketio = SocketIO(app)# message_queue="amqp://guest:guest@0.0.0.0:5672//")
 logicSystem = LogicSystem.LogicSystem(socketio)
 statistics = Statistics.Statistics()
 
@@ -100,7 +105,6 @@ pins = {
    }
 
 def get_template_data(active_list, active_item):
-   locations = logicSystem.locations
    return {
       "employees": logicSystem.employees,
       "locations": logicSystem.locations,
@@ -167,10 +171,25 @@ def location(loc_name):
 
 @app.route("/statistics", strict_slashes=False)
 def statistics_url():
-   consumptions = statistics.consumption.get_consumptions()
-
+   consumptions = statistics.consumption.get_daily_consumptions('Office', 'Omar Bamarouf')
+   consumptions = json.dumps(consumptions)
+   
    template_data = get_template_data(None, None)
    return render_template('wifi-statistics.html', **template_data, consumptions=consumptions)
+
+#with app.app_context():
+#   @socketio.on('post_consumptions')
+#   def post_consumptions(json):
+      #consumptions = statistics.consumption.get_daily_consumptions('Office', 'Omar Bamarouf')
+   #   socketio.emit('get_consumptions', {'data': 1})
+
+#      print('sent consumptions')
+with app.app_context():
+   def post_consumptions(json):
+      print('sent consumptions')
+
+   socketio.on_event('post_consumptions', post_consumptions)
+
 
 
 @app.route('/employee/assets/<path:path>')

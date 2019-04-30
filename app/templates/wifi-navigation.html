@@ -43,6 +43,14 @@
                         {% endfor %}
                     </ul>
                 </li>
+                <li {% if active_list == 'statistics' %}
+                        class="active"
+                    {% endif %}>
+                    <a href="{{ url_for('statistics_url') }}">
+                        <i class="ti-ruler-alt"></i>
+                        <span>Statistics</span>
+                    </a>
+                </li>
                 <li {% if active_list == 'sensors' %}
                         class="active"
                     {% endif %}>

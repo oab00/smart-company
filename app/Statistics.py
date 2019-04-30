@@ -1,5 +1,6 @@
 
 import sqlite3 as sql
+from datetime import timedelta
 
 class Statistics:
     def __init__(self):
@@ -32,8 +33,37 @@ class Consumptions:
                 self.consumptions.append(consumption)
 
 
-    def get_consumptions(self):
-        return self.consumptions
+    def get_daily_consumptions(self, location, employee=None):
+        daily_consumptions = {}
+
+        # for each consumption period
+        for con in self.consumptions:
+            if  location == con.location and employee == con.employee:
+                if con.date not in daily_consumptions:
+                    daily_consumptions[con.date] = {}
+                    daily_consumptions[con.date]['hours'] = 0
+            
+                # add hours to dictionary
+                daily_consumptions[con.date]['hours'] += con.get_hours()
+
+        # for each date get kWh consumption and price
+        for date, consumption in daily_consumptions.items():
+            hours = consumption['hours']
+            lights_wattage = 12 * 3 # make this based on preference
+            ac_wattage = 900    # air conditioner
+            pc_wattage = 180    # personal computer
+
+            wattage = lights_wattage + ac_wattage + pc_wattage
+
+            # Formula: *Wattage * Hours Used) / 1000 * Price per kWh
+            kWh = (wattage * hours) / 1000.0
+            price = kWh * 0.20
+
+            #print(date + " -> ", hours, kWh, round(price, 2))
+            daily_consumptions[date]['kWh'] = kWh
+            daily_consumptions[date]['price'] = price
+
+        return daily_consumptions
         
 
 class Consumption:
@@ -42,11 +72,10 @@ class Consumption:
         self.id = CONSUMPTION_ID
 
         date_start = START_DATE.split(' ')
-        self.start_date = date_start[0]
+        self.date = date_start[0]
         self.start_time = date_start[1]
 
         date_end = END_DATE.split(' ')
-        self.end_date = date_end[0]
         self.end_time = date_end[1]
         
         self.LED = LED_CONSUMPTION
@@ -55,6 +84,18 @@ class Consumption:
         self.location = LOCATION_NAME
         self.employee = EMPLOYEE_NAME
         
+    def get_hours(self):
+        t1 = self.start_time.split(':')
+        start_time = timedelta(hours=int(t1[0])) #, minutes=t1[1], seconds=t1[2])
+
+        t2 = self.end_time.split(':')
+        end_time = timedelta(hours=int(t2[0]))
+
+        time_difference = str(end_time - start_time).split(':')
+
+        hours = int(time_difference[0])
+
+        return hours
 
 class Performances:
     def __init__(self):

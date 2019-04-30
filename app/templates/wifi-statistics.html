@@ -6,9 +6,13 @@
 
     <title>Statistics</title>
 
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+
     <style>
-            
-        </style>
+        #amlinechart5 {
+            background-color: white;
+        }
+    </style>
 
 {% endblock %}
 
@@ -19,6 +23,7 @@
         <hr />
         <h1>Electricity Consumption</h1>
         <hr />
+        <div id="amlinechart5"></div>
         <br /><br />
         <!--<hr />
         <h1>Employee Performance</h1>
@@ -29,13 +34,26 @@
 
 {% block scripts %}
 
+    <script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+    <script src="https://www.amcharts.com/lib/3/serial.js"></script>
+    <script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+    <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+
     <script type="text/javascript" charset="utf-8">
         function ab2str(buf) {
             return String.fromCharCode.apply(null, new Uint8Array(buf));
         }
 
+        function parseHtmlEntities(str) {
+            return str.replace(/&#([0-9]{1,3});/gi, function(match, numStr) {
+                var num = parseInt(numStr, 10); // read num as normal number
+                return String.fromCharCode(num);
+            });
+        }
+
         $(document).ready(function() {
             var socket = io.connect('http://' + document.domain + ':' + location.port);
+            //var socket = io.connect('amqp://guest:guest@192.168.1.192:5672//');
 
             console.log('http://' + document.domain + ':' + location.port)
 
@@ -46,8 +64,142 @@
             socket.on('refresh', () => {
                 console.log('Refresh!')
                 location.reload()
-            })
+            });
+
+            let consumptions = JSON.parse(parseHtmlEntities("{{ consumptions }}"));
+            console.log(Object.keys(consumptions).sort())
+            
+            let data = Object.keys(consumptions).sort().map(date => {
+                let hours = consumptions[date].hours;
+                let kWh = consumptions[date].kWh;
+                let price = consumptions[date].price;
+                
+                return {
+                    "date": date,
+                    "price": parseInt(kWh)
+                }
+            });
+            console.log(data)
+
+            let old_data = [{
+                        "date": "2012-03-01",
+                        "price": 20
+                    }, {
+                        "date": "2012-03-02",
+                        "price": 75
+                    }, {
+                        "date": "2012-03-03",
+                        "price": 15
+                    }, {
+                        "date": "2012-03-04",
+                        "price": 75
+                    }, {
+                        "date": "2012-03-05",
+                        "price": 158
+                    }, {
+                        "date": "2012-03-06",
+                        "price": 57
+                    }, {
+                        "date": "2012-03-07",
+                        "price": 107
+                    }, {
+                        "date": "2012-03-08",
+                        "price": 89
+                    }, {
+                        "date": "2012-03-09",
+                        "price": 75
+                    }, {
+                        "date": "2012-03-10",
+                        "price": 132
+                    }, {
+                        "date": "2012-03-11",
+                        "price": 158
+                    }, {
+                        "date": "2012-03-12",
+                        "price": 56
+                    }, {
+                        "date": "2012-03-13",
+                        "price": 169
+                    }, {
+                        "date": "2012-03-14",
+                        "price": 24
+                    }, {
+                        "date": "2012-03-15",
+                        "price": 147
+                    }];
+
+            let new_data = [{
+                    "date": "2012-04-29",
+                    "price": 3
+                }, {
+                    "date": "2012-04-30",
+                    "price": 5
+                }, {
+                    "date": "2012-05-01",
+                    "price": 4
+                }];
+
+            console.log(new_data)
+
+            if ($('#amlinechart5').length) {
+                var chart = AmCharts.makeChart("amlinechart5", {
+                    "type": "serial",
+                    "theme": "light",
+                    "marginRight": 20,
+                    "marginTop": 17,
+                    "autoMarginOffset": 20,
+                    "dataProvider": data,
+                    "valueAxes": [{
+                        "logarithmic": false,
+                        "dashLength": 1,
+                        "guides": [{
+                            "dashLength": 6,
+                            "inside": true,
+                            "label": "average",
+                            "lineAlpha": 1,
+                            "value": 90.4
+                        }],
+                        "position": "left"
+                    }],
+                    "graphs": [{
+                        "bullet": "round",
+                        "id": "g1",
+                        "bulletBorderAlpha": 1,
+                        "bulletColor": "#FFFFFF",
+                        "bulletSize": 7,
+                        "lineThickness": 2,
+                        "title": "Price",
+                        "type": "smoothedLine",
+                        "useLineColorForBulletBorder": true,
+                        "valueField": "price"
+                    }],
+                    "chartScrollbar": {},
+                    "chartCursor": {
+                        "valueLineEnabled": true,
+                        "valueLineBalloonEnabled": true,
+                        "valueLineAlpha": 0.5,
+                        "fullWidth": true,
+                        "cursorAlpha": 0.05
+                    },
+                    "dataDateFormat": "YYYY-MM-DD",
+                    "categoryField": "date",
+                    "categoryAxis": {
+                        "parseDates": true
+                    },
+                    "export": {
+                        "enabled": false
+                    }
+                });
+
+                chart.addListener("dataUpdated", zoomChart);
+
+                function zoomChart() {
+                    //chart.zoomToDates(new Date(2012, 2, 2), new Date(2012, 2, 10));
+                }
+            }
         });
+
+        
     </script>
 
 {% endblock %}
