@@ -3,17 +3,17 @@ from flask import current_app as app
 import sqlite3 as sql
 import time 
 import json
+import RPi.GPIO as GPIO
 import paho.mqtt.client as mqtt
 from flask_socketio import SocketIO, emit
 
 from . import LogicSystem
 from . import Statistics
 
-#from kombu import Connection
-#connection = Connection('amqp://guest:guest@0.0.0.0:5672//')
-#connection.connect()
+PIN_COOLER = 17 # GPIO Pin for Cooler
 
-socketio = SocketIO(app)# message_queue="amqp://guest:guest@0.0.0.0:5672//")
+
+socketio = SocketIO(app)
 logicSystem = LogicSystem.LogicSystem(socketio)
 statistics = Statistics.Statistics()
 
@@ -31,7 +31,10 @@ def on_connect(client, userdata, flags, rc):
    client.subscribe("RFID/Restroom")
 
    client.subscribe("LCD/write")
+   client.subscribe("LCD/write2")
    client.subscribe("Ultrasonic/Main")
+   client.subscribe("ULTRASONIC1")
+   client.subscribe("ULTRASONIC2")
    client.subscribe("/esp8266/temperature")
    client.subscribe("/esp8266/humidity")
     
@@ -42,8 +45,17 @@ def on_message(client, userdata, message):
    #socketio.emit('my variable')
    #print("Received message '" + payload + "' on topic '" + message.topic + "' with QoS " + str(message.qos))
    if message.topic == "/esp8266/temperature":
-       print("temperature update")
-       socketio.emit('dht_temperature', {'data': message.payload})
+      print("temperature update")
+      socketio.emit('dht_temperature', {'data': message.payload})
+
+      # based on employee preference
+      if (float(message.payload) > 24.0): # pref_temp):
+         # turn on cooler
+         GPIO.output(PIN_COOLER, GPIO.HIGH)
+      else:
+         # turn off cooler
+         GPIO.output(PIN_COOLER, GPIO.LOW)
+
 
    elif message.topic == "/esp8266/humidity":
       print("humidity update")
@@ -54,35 +66,42 @@ def on_message(client, userdata, message):
       print("Ultrasonic1:", payload)
 
 
-   elif message.topic == "RFID/Office": # Gate for now
+   elif message.topic == "RFID/Gate": # Gate for now
       #print('Gate RFID: ', payload)
-      logicSystem.rfid_reading(payload, "Gate")
+      logicSystem.rfid_reading(payload, "On Campus")
       #print("Gate RFID: ", employee.name + ',', employee.cardID)
       socketio.emit('local_rfid', {'data': payload})
       employee = logicSystem.get_employee_by_rfid(payload)
       mqttc.publish("LCD/write", employee.name)
 
-   elif message.topic == "RFID/Gate": # should be office
-      print("Office RFID: ", payload)
+      mqttc.publish("ULTRASONIC2", "HIGH")
+
+   elif message.topic == "RFID/Office": # should be office
+      #print("Office RFID: ", payload)
       socketio.emit('remote_rfid', {'data': payload})
       logicSystem.office_rfid_reading(payload)
+
+      mqttc.publish("ULTRASONIC2", "MED")
 
    elif message.topic == "RFID/MeetingRoom":
       #print("RFID_MeetingRoom: ", "'" +payload+"'")
       logicSystem.rfid_reading(payload, "Meeting Room")
 
    elif message.topic == "RFID/Mosque":
-      print("RFID_Mosque: ", payload)
+      #print("RFID_Mosque: ", payload)
       logicSystem.rfid_reading(payload, "Mosque")
 
+      mqttc.publish("ULTRASONIC2", "OFF")
+
    elif message.topic == "RFID/CoffeeShop":
-      print("RFID_CoffeeShop: ", payload)
+      #print("RFID_CoffeeShop: ", payload)
       logicSystem.rfid_reading(payload, "Coffee Shop")
 
    elif message.topic == "RFID/Restroom":
-      print("RFID_Restroom: ", payload)
+      #print("RFID_Restroom: ", payload)
       logicSystem.rfid_reading(payload, "Restroom")
       
+
    elif message.topic == "Ultrasonic/Main":
       logicSystem.office.set_visitors(payload)
       
@@ -96,7 +115,12 @@ mqttc.connect("localhost",1883,60)
 mqttc.loop_start()
 
 
-mqttc.publish("LCD/write", "")
+mqttc.publish("LCD/write2", "")
+
+#GPIO.setmode(GPIO.BCM)
+#GPIO.setup(18, GPIO.OUT) # Pin 17 for Cooler
+#GPIO.output(18, GPIO.HIGH)
+#GPIO.cleanup()
 
 # Create a dictionary called pins to store the pin number, name, and pin state:
 pins = {

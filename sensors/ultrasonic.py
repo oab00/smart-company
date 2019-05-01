@@ -51,15 +51,15 @@ mqttc.loop_start() # start another thread
 
 
 while True:
-	if ultrasonic_out < 100:
+	if ultrasonic_out < 18:
 		# time.sleep(1)
-		if ultrasonic_in < 100:
+		if ultrasonic_in < 18:
 			# visitors = visitors + 1
 			mqttc.publish("Ultrasonic/Main", "INCREASE")
 
-	elif ultrasonic_in < 100:
+	elif ultrasonic_in < 18:
 		# time.sleep(1)
-		if ultrasonic_out < 100:
+		if ultrasonic_out < 18:
 			# visitors = visitors - 1
 			mqttc.publish("Ultrasonic/Main", "DECREASE")
 

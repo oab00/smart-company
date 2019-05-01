@@ -17,7 +17,7 @@ class LogicSystem:
 
 
     def initalize_locations(self):
-        locations = ["Outside", "On Campus", "Gate", "Office", 
+        locations = ["Outside", "On Campus", "Office", 
                     "Meeting Room", "Mosque", "Coffee Shop", "Restroom"]
         
         for loc in locations:
@@ -101,16 +101,23 @@ class LogicSystem:
 
 
     def register_rfid_event(self, employee, location):
+        #print('register: ', employee.name, location.name)
+
         if not employee.locations[location.name]: # If Entering a Room  
-            #print('lol', employee.name, location.name)
             # Check if employee is inside one of the rooms
             if not employee.location == "Outside" and not employee.location == "On Campus":
                 print("{} can't get to {} because he's inside {}".format(employee.name,
                                                                     location.name, employee.location))
                 return
 
+            # Can't enter any room unless on campus
+            if not location.name == "Outside" and not employee.location == "On Campus" and not location.name == "On Campus":
+                print("{} can't get to {} becaue he's not On Campus".format(employee.name, location.name))
+                return
+
             old_location = self.get_location(employee.location)
             #print('woof', old_location.name, [employee.name for employee in old_location.employees])
+            #print(old_location.name, [emp.name for emp in old_location.employees])
             old_location.employees.remove(employee)
             #print('woof', old_location.name, [employee.name for employee in old_location.employees])
             employee.locations[location.name] = True
@@ -121,11 +128,14 @@ class LogicSystem:
             employee.location = location.name
 
             current_location = location.name
-            if current_location == 'Gate':
-                current_location = 'On Campus'
-                employee.location = 'On Campus'
-            
-            print("\033[1;36;40m{}\033[0;37;40m has\033[1;32;40m entered\033[0;37;40m the \033[1;33;40m{}\033[0;37;40m and is now \033[1;33;40m{}\033[0;37;40m".format(employee.name, location.name, current_location))
+            is_in = ' in '
+            if current_location == 'On Campus':
+                current_location = 'Gate'
+                is_in = ' '
+            if current_location == 'Outside':
+                is_in = ' '
+
+            print("\033[1;36;40m{}\033[0;37;40m has\033[1;32;40m entered\033[0;37;40m the \033[1;33;40m{}\033[0;37;40m and is now{}\033[1;33;40m{}\033[0;37;40m".format(employee.name, current_location, is_in, location.name))
 
             self.socketio.emit('refresh', {})
 
@@ -138,21 +148,25 @@ class LogicSystem:
                 con.commit()
 
         else:
+            if location.name == "On Campus" and not employee.location == "On Campus": 
+                print("{} can't get Outside because he's inside {}".format(employee.name, employee.location))
+                return
+
             employee.locations[location.name] = False
             location.employees.remove(employee)
 
             current_location = ''
-            if location.name == 'Gate':
-                current_location = 'Outside'
+            if location.name == 'On Campus':
+                current_location = 'Gate'
                 employee.location = 'Outside'
             else:
-                current_location = 'On Campus'
+                current_location = location.name
                 employee.location = 'On Campus'
 
-            new_location = self.get_location(current_location)
+            new_location = self.get_location(employee.location)
             new_location.employees.append(employee)
 
-            print("\033[1;36;40m{}\033[0;37;40m has\033[1;31;40m left\033[0;37;40m the \033[1;33;40m{}\033[0;37;40m and is now \033[1;33;40m{}\033[0;37;40m".format(employee.name, location.name, current_location))
+            print("\033[1;36;40m{}\033[0;37;40m has\033[1;31;40m left\033[0;37;40m the \033[1;33;40m{}\033[0;37;40m and is now \033[1;33;40m{}\033[0;37;40m".format(employee.name, current_location, employee.location))
 
             self.socketio.emit('refresh', {})
 
@@ -161,7 +175,7 @@ class LogicSystem:
                 cur.execute('''INSERT INTO RFIDS (EMPLOYEE_NAME, RFID_CARD_ID, RFID_LOCATION, RFID_STATUS)
                            VALUES ('{}', '{}', '{}', 'Leave');'''.format( employee.name,
                                                                           employee.cardID,
-                                                                          current_location))
+                                                                          location.name))
                 con.commit()
 
     def office_rfid_reading(self, cardID):
@@ -180,7 +194,6 @@ class Employee:
         self.locations = { # False = Leave , True = Enter
             "Outside": True,
             "On Campus": False,
-            "Gate": False,
             "Office": False,
             "Meeting Room": False,
             "Mosque": False,
@@ -207,6 +220,7 @@ class Office(Location):
         Location.__init__(self, name, rfid_code)
 
     def rfid_reading(self, cardID):
+        # check if employee's office
         if cardID == self.employee.cardID:
             print(self.employee.name, "has entered their office.")
 
@@ -233,8 +247,9 @@ class Office(Location):
 
         else:
             other_employee = self.logicSystem.get_employee_by_rfid(cardID)
-            print("{} has entered {}'s office".format(other_employee.name, self.employee.name))
+            #print("{} has entered {}'s office".format(other_employee.name, self.employee.name))
 
+            self.logicSystem.register_rfid_event(other_employee, self)
             # Check if Main Employee is in Office
 
             # Turn System On Based on Defaults

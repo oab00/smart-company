@@ -5,7 +5,7 @@ from datetime import timedelta
 class Statistics:
     def __init__(self):
         self.consumption = Consumptions()
-        self.performance = Performances()
+        self.performance = Performances(self.consumption)
 
 
 class Consumptions:
@@ -38,11 +38,11 @@ class Consumptions:
 
         # for each consumption period
         for con in self.consumptions:
-            if  location == con.location and employee == con.employee:
-                if con.date not in daily_consumptions:
-                    daily_consumptions[con.date] = {}
-                    daily_consumptions[con.date]['hours'] = 0
-            
+            if con.date not in daily_consumptions:
+                daily_consumptions[con.date] = {}
+                daily_consumptions[con.date]['hours'] = 0
+
+            if location == con.location and employee == con.employee:
                 # add hours to dictionary
                 daily_consumptions[con.date]['hours'] += con.get_hours()
 
@@ -92,19 +92,62 @@ class Consumption:
         end_time = timedelta(hours=int(t2[0]))
 
         time_difference = str(end_time - start_time).split(':')
+        hours = 0
 
-        hours = int(time_difference[0])
+        try:
+            hours = int(time_difference[0])
+        except:
+            time_difference = str(start_time - end_time).split(':')
+            hours = int(time_difference[0])
+
+        #print(self.date, end_time, start_time, 'time:', time_difference[0])
 
         return hours
 
 class Performances:
-    def __init__(self):
+    def __init__(self, consumptions):
         self.performances = []
+        self.consumptions = consumptions
         self.initialize_performances()
 
-    def initialize_performances(self):
-        pass
 
-class Performance:
-    def __init__(self):
-        pass
+    def initialize_performances(self):
+        daily_performances = {}
+
+        for con in self.consumptions:
+            if con.date not in daily_performances:
+                daily_performances[con.date] = {}
+                daily_performances[con.date]['office_hours'] = 0
+                daily_performances[con.date]['meeting_hours'] = 0
+
+            if con.location == 'Office':
+                daily_performances[con.date]['office_hours'] += con.get_hours()
+            elif con.location == 'Meeting Room':
+                daily_performances[con.date]['meeting_hours'] += con.get_hours()
+
+        for date, performance in daily_performances.items():
+            office_hours = performance['office_hours']
+            meeting_hours = performance['meeting_hours']
+
+            office_coefficient = 0.1125
+            meeting_coefficient
+
+
+        # for each date get kWh consumption and price
+        for date, consumption in daily_consumptions.items():
+            hours = consumption['hours']
+            lights_wattage = 12 * 3 # make this based on preference
+            ac_wattage = 900    # air conditioner
+            pc_wattage = 180    # personal computer
+
+            wattage = lights_wattage + ac_wattage + pc_wattage
+
+            # Formula: *Wattage * Hours Used) / 1000 * Price per kWh
+            kWh = (wattage * hours) / 1000.0
+            price = kWh * 0.20
+
+            #print(date + " -> ", hours, kWh, round(price, 2))
+            daily_consumptions[date]['kWh'] = kWh
+            daily_consumptions[date]['price'] = price
+
+        return daily_consumptions
