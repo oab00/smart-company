@@ -8,12 +8,12 @@ DELETE FROM LOCATIONS;
     .headers on
 */
 
-INSERT INTO EMPLOYEES (EMPLOYEE_NAME, EMPLOYEE_STATUS, RFID_CARD_ID, LOCATION_NAME) 
-            VALUES ('Omar Bamarouf', 'Available', '41 24 9B 66', 'Outside'),
-                   ('Baraa Ismail', 'Available', 'B9 B5 69 05', 'Outside'),
-                   ('Raed Al-Harthi', 'Available', '90 A2 42 83', 'Outside'),
-                   ('Mohanned Asiri', 'Available', '09 BA 52 05', 'Outside'),
-                   ('Ibrahim Hasan', 'Available', '8A 86 B8 73', 'Outside');
+INSERT INTO EMPLOYEES (EMPLOYEE_NAME, EMPLOYEE_STATUS, RFID_CARD_ID, LOCATION_NAME, PREF_TEMPERATURE, PREF_LIGHT) 
+            VALUES ('Omar Bamarouf', 'Available', '41 24 9B 66', 'Outside', 22.0, "HIGH"),
+                   ('Baraa Ismail', 'Available', 'B9 B5 69 05', 'Outside', 23.0, "MED"),
+                   ('Raed Al-Harthi', 'Available', '90 A2 42 83', 'Outside', 24.0, "HIGH"),
+                   ('Mohanned Asiri', 'Available', '09 BA 52 05', 'Outside', 23.0, "MED"),
+                   ('Ibrahim Hasan', 'Available', '8A 86 B8 73', 'Outside', 22.0, "HIGH");
 
 
 INSERT INTO LOCATIONS (LOCATION_NAME, RFID_CODE)

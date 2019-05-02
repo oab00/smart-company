@@ -78,7 +78,9 @@
                 
                 return {
                     "date": date,
-                    "price": parseInt(kWh)
+                    "price": parseInt(kWh),
+                    "prices": Number((price).toFixed(2)),
+                    "hours": hours
                 }
             });
 
@@ -100,7 +102,8 @@
                             "lineAlpha": 1,
                             "value": 90.4
                         }],
-                        "position": "left"
+                        "position": "left",
+                        "title": "Kilowatt Hour (kWh)"
                     }],
                     "graphs": [{
                         "bullet": "round",
@@ -112,7 +115,21 @@
                         "title": "Price",
                         "type": "smoothedLine",
                         "useLineColorForBulletBorder": true,
-                        "valueField": "price"
+                        "valueField": "price",
+                        "balloonText": "[[category]]<br><span style='font-size:14px;'>Consumption:  <b>[[value]] kWh</b></span>"
+                                        + "<br>Time Spent in Office: <b>[[hours]] hours</b>",
+                    },{
+                        "bullet": "round",
+                        "id": "g2",
+                        "bulletBorderAlpha": 1,
+                        "bulletColor": "#FFFFFF",
+                        "bulletSize": 7,
+                        "lineThickness": 2,
+                        "title": "Prices",
+                        "type": "smoothedLine",
+                        "useLineColorForBulletBorder": true,
+                        "valueField": "prices",
+                        "balloonText": "<span style='font-size:14px;'>Cost:  <b>[[prices]] Riyal</b></span>"
                     }],
                     "chartScrollbar": {},
                     "chartCursor": {
@@ -125,7 +142,8 @@
                     "dataDateFormat": "YYYY-MM-DD",
                     "categoryField": "date",
                     "categoryAxis": {
-                        "parseDates": true
+                        "parseDates": true,
+                        "title": "Daily Report for the Month of January"
                     },
                     "export": {
                         "enabled": false
@@ -138,92 +156,21 @@
                     chart.zoomToDates(new Date(2012, 2, 2), new Date(2012, 2, 10));
                 }*/
 
-                /*let performances = JSON.parse(parseHtmlEntities("{ performances }"));
-            
-                let data = Object.keys(performances).sort().map(date => {
-                    let hours = performances[date].hours;
+                let performances = JSON.parse(parseHtmlEntities("{{ performances }}"));
+                
+                data = Object.keys(performances).sort().map(date => {
+                    //let hours = performances[date].hours;
                     let performance = performances[date].performance;
+                    let meeting_hours = performances[date].meeting_hours;
+                    let office_hours = performances[date].office_hours;
                     
                     return {
                         "date": date,
-                        "value": parseInt(performance)
+                        "performance":  performance * 100,
+                        "meeting_hours": meeting_hours,
+                        "office_hours": office_hours
                     }
-                });*/
-
-                let old_data = [{
-                            "date": "2012-01-01",
-                            "value": 8
-                        }, {
-                            "date": "2012-01-02",
-                            //"color": "#6e00ff",
-                            "value": 10
-                        }, {
-                            "date": "2012-01-03",
-                            "value": 12
-                        }, {
-                            "date": "2012-01-04",
-                            "value": 14
-                        }, {
-                            "date": "2012-01-05",
-                            "value": 11
-                        }, {
-                            "date": "2012-01-06",
-                            "value": 6
-                        }, {
-                            "date": "2012-01-07",
-                            "value": 7
-                        }, {
-                            "date": "2012-01-08",
-                            "value": 9
-                        }, {
-                            "date": "2012-01-09",
-                            "value": 13
-                        }, {
-                            "date": "2012-01-10",
-                            "value": 15
-                        }, {
-                            "date": "2012-01-11",
-                            //"color": "#6e00ff",
-                            "value": 19
-                        }, {
-                            "date": "2012-01-12",
-                            "value": 21
-                        }, {
-                            "date": "2012-01-13",
-                            "value": 22
-                        }, {
-                            "date": "2012-01-14",
-                            "value": 20
-                        }, {
-                            "date": "2012-01-15",
-                            "value": 18
-                        }, {
-                            "date": "2012-01-16",
-                            "value": 14
-                        }, {
-                            "date": "2012-01-17",
-                            //"color": "#6e00ff",
-                            "value": 16
-                        }, {
-                            "date": "2012-01-18",
-                            "value": 18
-                        }, {
-                            "date": "2012-01-19",
-                            "value": 17
-                        }, {
-                            "date": "2012-01-20",
-                            "value": 15
-                        }, {
-                            "date": "2012-01-21",
-                            "value": 12
-                        }, {
-                            "date": "2012-01-22",
-                            //"color": "#6e00ff",
-                            "value": 10
-                        }, {
-                            "date": "2012-01-23",
-                            "value": 8
-                        }];
+                });
 
                 if ($('#amlinechart1').length) {
                     var chart = AmCharts.makeChart("amlinechart1", {
@@ -232,25 +179,28 @@
                         "marginRight": 20,
                         "autoMarginOffset": 20,
                         "dataDateFormat": "YYYY-MM-DD HH:NN",
-                        "dataProvider": old_data,
+                        "dataProvider": data,
                         "valueAxes": [{
                             "axisAlpha": 0,
                             "guides": [{
                                 "fillAlpha": 0.1,
                                 "fillColor": "#c599ff",
                                 "lineAlpha": 0,
-                                "toValue": 24,
+                                "toValue": 120,
                                 "value": 4
                             }],
                             "position": "left",
-                            "tickLength": 0
+                            "tickLength": 0,
+                            "title": "Performance Percentage (%)"
                         }],
                         "graphs": [{
-                            "balloonText": "[[category]]<br><b><span style='font-size:14px;'>value:[[value]]</span></b>",
+                            "balloonText": "[[category]]<br><span style='font-size:14px;'>Performance:  <b>[[value]]%</span></b>"
+                                            + "<br /> Time Spent in Meeting Room: <b>[[meeting_hours]] hours</b>"                
+                                            + "<br /> Time Spent in Office: <b>[[office_hours]] hours</b>",
                             "bullet": "round",
                             "dashLength": 3,
                             "colorField": "color",
-                            "valueField": "value"
+                            "valueField": "performance"
                         }],/*
                         "trendLines": [{
                             "finalDate": "2012-01-11 12",
@@ -286,7 +236,8 @@
                             "axisAlpha": 0,
                             "gridAlpha": 0.1,
                             "minorGridAlpha": 0.1,
-                            "minorGridEnabled": true
+                            "minorGridEnabled": true,
+                            "title": "Daily Report for the Month of January"
                         },
                         "export": {
                             "enabled": false

@@ -107,11 +107,9 @@ class Consumption:
 class Performances:
     def __init__(self, consumptions):
         self.performances = []
-        self.consumptions = consumptions
-        self.initialize_performances()
+        self.consumptions = consumptions.consumptions
 
-
-    def initialize_performances(self):
+    def get_daily_performances(self, employee):
         daily_performances = {}
 
         for con in self.consumptions:
@@ -125,29 +123,15 @@ class Performances:
             elif con.location == 'Meeting Room':
                 daily_performances[con.date]['meeting_hours'] += con.get_hours()
 
-        for date, performance in daily_performances.items():
-            office_hours = performance['office_hours']
-            meeting_hours = performance['meeting_hours']
+        for date, perform in daily_performances.items():
+            office_hours = perform['office_hours']
+            meeting_hours = perform['meeting_hours']
 
-            office_coefficient = 0.1125
-            meeting_coefficient
+            office_coefficient = 0.1125  # maximum 90%
+            meeting_coefficient = 0.125  # maximum 100%
 
+            performance = office_coefficient * office_hours + meeting_coefficient * meeting_hours
+            
+            daily_performances[date]['performance'] = performance
 
-        # for each date get kWh consumption and price
-        for date, consumption in daily_consumptions.items():
-            hours = consumption['hours']
-            lights_wattage = 12 * 3 # make this based on preference
-            ac_wattage = 900    # air conditioner
-            pc_wattage = 180    # personal computer
-
-            wattage = lights_wattage + ac_wattage + pc_wattage
-
-            # Formula: *Wattage * Hours Used) / 1000 * Price per kWh
-            kWh = (wattage * hours) / 1000.0
-            price = kWh * 0.20
-
-            #print(date + " -> ", hours, kWh, round(price, 2))
-            daily_consumptions[date]['kWh'] = kWh
-            daily_consumptions[date]['price'] = price
-
-        return daily_consumptions
+        return daily_performances

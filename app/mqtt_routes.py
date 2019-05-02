@@ -12,11 +12,6 @@ from . import Statistics
 
 PIN_COOLER = 17 # GPIO Pin for Cooler
 
-
-socketio = SocketIO(app)
-logicSystem = LogicSystem.LogicSystem(socketio)
-statistics = Statistics.Statistics()
-
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, flags, rc):
    print("Connected with result code " + str(rc))
@@ -74,14 +69,10 @@ def on_message(client, userdata, message):
       employee = logicSystem.get_employee_by_rfid(payload)
       mqttc.publish("LCD/write", employee.name)
 
-      mqttc.publish("ULTRASONIC2", "HIGH")
-
    elif message.topic == "RFID/Office": # should be office
       #print("Office RFID: ", payload)
       socketio.emit('remote_rfid', {'data': payload})
       logicSystem.office_rfid_reading(payload)
-
-      mqttc.publish("ULTRASONIC2", "MED")
 
    elif message.topic == "RFID/MeetingRoom":
       #print("RFID_MeetingRoom: ", "'" +payload+"'")
@@ -106,27 +97,21 @@ def on_message(client, userdata, message):
       logicSystem.office.set_visitors(payload)
       
    
-
-
+# Initialize MQTT
 mqttc=mqtt.Client()
 mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 mqttc.connect("localhost",1883,60)
 mqttc.loop_start()
 
+# Initialize System
+socketio = SocketIO(app)
+logicSystem = LogicSystem.LogicSystem(socketio, mqttc)
+statistics = Statistics.Statistics()
 
+# Clear LCD Screen
 mqttc.publish("LCD/write2", "")
 
-#GPIO.setmode(GPIO.BCM)
-#GPIO.setup(18, GPIO.OUT) # Pin 17 for Cooler
-#GPIO.output(18, GPIO.HIGH)
-#GPIO.cleanup()
-
-# Create a dictionary called pins to store the pin number, name, and pin state:
-pins = {
-   4 : {'name' : 'GPIO 4', 'board' : 'esp8266', 'topic' : 'esp8266/4', 'state' : 'False'},
-   5 : {'name' : 'GPIO 5', 'board' : 'esp8266', 'topic' : 'esp8266/5', 'state' : 'False'}
-   }
 
 def get_template_data(active_list, active_item):
    return {
@@ -153,8 +138,7 @@ def main():
 @app.route("/sensors", strict_slashes=False)
 def sensors():
    template_data = get_template_data('sensors', None)
-   #return render_template('index.html', async_mode=socketio.async_mode, **templateData)
-   return render_template('wifi-sensors.html', **template_data, pins=pins)
+   return render_template('wifi-sensors.html', async_mode=socketio.async_mode, **template_data)
 
 
 @app.route("/employees", strict_slashes=False)
@@ -197,25 +181,15 @@ def location(loc_name):
 def statistics_url():
    consumptions = statistics.consumption.get_daily_consumptions('Office', 'Omar Bamarouf')
    consumptions = json.dumps(consumptions)
+
+   performances = statistics.performance.get_daily_performances('Omar Bamarouf')
+   performances = json.dumps(performances)
    
    template_data = get_template_data(None, None)
-   return render_template('wifi-statistics.html', **template_data, consumptions=consumptions)
-
-#with app.app_context():
-#   @socketio.on('post_consumptions')
-#   def post_consumptions(json):
-      #consumptions = statistics.consumption.get_daily_consumptions('Office', 'Omar Bamarouf')
-   #   socketio.emit('get_consumptions', {'data': 1})
-
-#      print('sent consumptions')
-with app.app_context():
-   def post_consumptions(json):
-      print('sent consumptions')
-
-   socketio.on_event('post_consumptions', post_consumptions)
+   return render_template('wifi-statistics.html', **template_data, consumptions=consumptions, performances=performances)
 
 
-
+@app.route('/<path:path>')
 @app.route('/employee/assets/<path:path>')
 @app.route('/employees/assets/<path:path>')
 @app.route('/location/assets/<path:path>')
@@ -223,47 +197,3 @@ with app.app_context():
 @app.route('/statistics/assets/<path:path>')
 def static_files_send(path):    
     return app.send_static_file(path)
-
-@app.route('/<path:path>')
-def serve_file_in_dir(path):
-    #return send_from_directory(app.static_folder, path)
-    return app.send_static_file(path)
-
-
-@app.route("/LCD_Write/")
-def LCD_write():  
-   mqttc.publish("LCD/write", "OMAR IS BOSS")
-
-   for i in range(21):
-      time.sleep(0.25)
-      mqttc.publish("LCD/write", "OMAR IS BOSS " + str(i))
-
-   print("Written to LCD")
-
-   template_data = get_template_data(None, None)
-   return render_template('wifi-data.html', **template_data, pins=pins)
-
-
-#@socketio.on('my event')
-#def handle_my_custom_event(json):
-#    print('received json data here: ' + str(json))
-
-
-# The function below is executed when someone requests a URL with the pin number and action in it:
-@app.route("/<board>/<changePin>/<action>")
-def action(board, changePin, action):
-   # Convert the pin from the URL into an integer:
-   changePin = int(changePin)
-   # Get the device name for the pin being changed:
-   devicePin = pins[changePin]['name']
-   # If the action part of the URL is "1" execute the code indented below:
-   if action == "1" and board == 'esp8266':
-      mqttc.publish(pins[changePin]['topic'],"1")
-      pins[changePin]['state'] = 'True'
-   if action == "0" and board == 'esp8266':
-      mqttc.publish(pins[changePin]['topic'],"0")
-      pins[changePin]['state'] = 'False'
-   # Along with the pin dictionary, put the message into the template data dictionary:
-
-   template_data = get_template_data(None, None)
-   return render_template('wifi-data.html', **template_data, pins=pins)
